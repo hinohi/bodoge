@@ -11,6 +11,7 @@ const App = () => {
     <div>
       <button
         onClick={() => {
+          console.log(workerInstance);
           workerInstance.twice(value).then((result: any) => {
             if (Number.isInteger(result)) {
               setValue(result);
