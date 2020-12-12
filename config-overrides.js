@@ -1,32 +1,50 @@
-// copy from https://github.com/likr-sandbox/convex-hull/blob/master/config-overrides.js
+// copy from https://github.com/aeroxy/react-typescript-webassembly-starter
+const {
+  disableEsLint,
+  useBabelRc,
+  override
+} = require('customize-cra');
 
 const path = require("path");
 
-module.exports = function override(config, env) {
-  config.module.rules.push({
-    test: /\.worker\.js$/,
-    use: {loader: "workerize-loader"},
-  });
-
-  const wasmExtensionRegExp = /\.wasm$/;
-
-  config.resolve.extensions.push(".wasm");
-
-  config.module.rules.forEach((rule) => {
-    (rule.oneOf || []).forEach((oneOf) => {
-      if (oneOf.loader && oneOf.loader.indexOf("file-loader") >= 0) {
-        // Make file-loader ignore WASM files
-        oneOf.exclude.push(wasmExtensionRegExp);
-      }
-    });
-  });
-
-  // Add a dedicated loader for WASM
-  config.module.rules.push({
-    test: wasmExtensionRegExp,
-    include: path.resolve(__dirname, "src"),
-    use: [{loader: require.resolve("wasm-loader"), options: {}}],
-  });
-
-  return config;
+const threadLoaderConfig = {
+  loader: 'thread-loader',
+  options: {
+    workerParallelJobs: 50,
+    workerNodeArgs: ['--max-old-space-size=1024'],
+    poolRespawn: false,
+    poolTimeout: 2000,
+    poolParallelJobs: 50,
+    name: 'my-pool'
+  }
 };
+
+module.exports = override(
+  config => {
+    const wasmExtensionRegExp = /\.wasm$/;
+
+    config.module.rules.forEach(o => {
+      if (o.enforce === 'pre') {
+        o.use.unshift(threadLoaderConfig)
+      }
+      (o.oneOf || []).forEach(oneOf => {
+        if (oneOf.loader && oneOf.loader.includes('file-loader')) {
+          // make file-loader ignore WASM files
+          oneOf.exclude.push(wasmExtensionRegExp);
+        }
+      });
+    });
+
+    config.resolve.extensions.push('.wasm');
+
+    config.module.rules.push({
+      test: wasmExtensionRegExp,
+      include: path.resolve(__dirname, 'src'),
+      use: [{ loader: require.resolve('wasm-loader'), options: {} }]
+    });
+
+    return config;
+  },
+  useBabelRc(),
+  disableEsLint()
+);

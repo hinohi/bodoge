@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import worker from "./twice.worker";
+// @ts-ignore
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import worker from "workerize-loader!./twice.worker";
 
-const twice = worker();
+const workerInstance = worker();
 
 const App = () => {
   const [value, setValue] = useState(1);
@@ -9,7 +11,7 @@ const App = () => {
     <div>
       <button
         onClick={() => {
-          twice.twice(value).then((result: any) => {
+          workerInstance.twice(value).then((result: any) => {
             if (Number.isInteger(result)) {
               setValue(result);
             }
