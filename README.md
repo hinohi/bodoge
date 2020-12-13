@@ -1,6 +1,6 @@
 # Bodoge! (ボドゲ！)
 
-sate: https://hinohi.github.io/bodoge/
+site: https://hinohi.github.io/bodoge/
 
 ## Build
 

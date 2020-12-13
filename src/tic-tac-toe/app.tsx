@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import * as Comlink from 'comlink';
 
 const wasm = Comlink.wrap<import('./worker').ModuleType>(new Worker('./worker', {
-  name: 'ttt',
+  name: 'tic-tac-toe',
   type: 'module'
 }));
 
