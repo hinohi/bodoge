@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import * as Comlink from 'comlink';
 
-const wasm = Comlink.wrap<import('./twice.worker').ModuleType>(new Worker('./twice.worker', {type: 'module'}));
+const wasm = Comlink.wrap<import('./twice.worker').ModuleType>(new Worker('./twice.worker', {name: 'twice', type: 'module'}));
 
 function Twice() {
   const [loaded, setLoaded] = useState(false);
