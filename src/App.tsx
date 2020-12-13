@@ -1,28 +1,15 @@
-import React, { useState } from "react";
-// @ts-ignore
-// eslint-disable-next-line import/no-webpack-loader-syntax
-import worker from "workerize-loader!./twice.worker";
+import React, {Suspense} from 'react';
 
-const workerInstance: typeof import('twice') = worker();
+const Twice = React.lazy(() => import('./twice'));
 
-const App = () => {
-  const [value, setValue] = useState(1);
+function App() {
   return (
     <div>
-      <button
-        onClick={() => {
-          workerInstance.twice(value).then((result: any) => {
-            if (Number.isInteger(result)) {
-              setValue(result);
-            }
-          });
-        }}
-      >
-        click me
-      </button>
-      <p>{value}</p>
+      <Suspense fallback={<div>loading...</div>}>
+        <Twice/>
+      </Suspense>
     </div>
   );
-};
+}
 
 export default App;

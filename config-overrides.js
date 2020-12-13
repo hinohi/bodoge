@@ -1,5 +1,7 @@
 const path = require("path");
 
+const WorkerPlugin = require('worker-plugin');
+
 module.exports = function override(config, env) {
   const wasmExtensionRegExp = /\.wasm$/;
 
@@ -19,5 +21,8 @@ module.exports = function override(config, env) {
     include: path.resolve(__dirname, 'src'),
     use: [{loader: require.resolve('wasm-loader'), options: {}}]
   });
+
+  config.plugins.push(new WorkerPlugin());
+
   return config;
 };
