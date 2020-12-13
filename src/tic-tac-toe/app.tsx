@@ -14,9 +14,6 @@ interface BoardProps {
 }
 
 function Board(props: BoardProps & Readonly<{ onClick: (i: number) => void }>) {
-  useEffect(() => {
-    console.log(props);
-  });
   const size = 300;
   return (
     <svg
