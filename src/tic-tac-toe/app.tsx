@@ -16,11 +16,12 @@ function useWasm(): boolean {
   return loaded;
 }
 
-type CellType = 'E' | 'X' | 'O';
+type Side = 'X' | 'O'
+type CellType = 'E' | Side;
 
 interface BoardProps {
   readonly squares: ReadonlyArray<CellType>
-  readonly xIsNext: boolean
+  readonly next: Side
   readonly history: ReadonlyArray<{
     readonly position: number
     readonly score?: number
@@ -111,18 +112,18 @@ function Select(props: SelectProps) {
 
 function put(board: BoardProps, position: number, score?: number): BoardProps {
   const s = board.squares.slice();
-  s[position] = board.xIsNext ? 'X' : 'O';
+  s[position] = board.next;
   return {
     squares: s,
-    xIsNext: !board.xIsNext,
+    next: board.next === 'X' ? 'O' : 'X',
     history: board.history.concat([{position, score}]),
   };
 }
 
 function TicTacToe() {
-  const defaultBoard = {
+  const defaultBoard: BoardProps = {
     squares: Array(9).fill('E'),
-    xIsNext: true,
+    next: 'X',
     history: [],
   } as const;
   const playerList = ['Human', 'AI (Full Exploration)'] as const;
@@ -142,12 +143,11 @@ function TicTacToe() {
     if (!loaded) return;
     if (calculating) return;
 
-    const side = board.xIsNext ? 'X' : 'O';
-    if (player[side] !== 1) return;
+    if (player[board.next] !== 1) return;
 
     setCalculating(true);
-    wasm.search(board.squares, side).then((result: SearchResponse) => {
-      console.log(result);
+    wasm.search(board.squares, board.next).then((result: SearchResponse) => {
+
       if (typeof result.position === 'number') {
         setBoard(put(board, result.position, result.score));
       }
@@ -162,8 +162,7 @@ function TicTacToe() {
   function handleClick(i: number): void {
     if (winner !== null) return;
     if (board.squares[i] !== 'E') return;
-    const next = board.xIsNext ? 'X' : 'O';
-    if (player[next] === 0) {
+    if (player[board.next] === 0) {
       setBoard(put(board, i));
     }
   }
@@ -184,7 +183,7 @@ function TicTacToe() {
 
   let status;
   if (winner === null) {
-    status = `next player: ${board.xIsNext ? 'X' : 'O'}`
+    status = `next player: ${board.next}`
   } else if (winner === 'E') {
     status = 'draw';
   } else {
