@@ -8,6 +8,15 @@ site: https://hinohi.github.io/bodoge/
 
 ```
 npm run start
+wasm-pack build twice
+wasm-pack build tic-tac-toe
+```
+
+### Test
+
+```
+cargo test --all
+wasm-pack test --node tic-tac-toe
 ```
 
 ### Release

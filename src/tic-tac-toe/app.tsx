@@ -28,6 +28,11 @@ interface SelectProps {
   readonly onChange: (i: number) => void
 }
 
+interface SearchResponse {
+  readonly position?: number
+  readonly score: number
+}
+
 function Board(props: BoardProps & Readonly<{ onClick: (i: number) => void }>) {
   const size = 300;
   return (
@@ -141,15 +146,25 @@ function Select(props: SelectProps) {
   )
 }
 
+function put(board: BoardProps, position: number): BoardProps {
+  const s = board.squares.slice();
+  s[position] = board.xIsNext ? 'X' : 'O';
+  return {
+    squares: s,
+    xIsNext: !board.xIsNext,
+  };
+}
+
 function TicTacToe() {
   const defaultBoard = {
     squares: Array(9).fill('E'),
     xIsNext: true,
-  };
-  const playerList = ['Human', 'AI (Full Exploration)'];
+  } as const;
+  const playerList = ['Human', 'AI (Full Exploration)'] as const;
 
   const loaded = useWasm();
-  const [board, setBoard] = useState(defaultBoard);
+  const [calculating, setCalculating] = useState(false);
+  const [board, setBoard] = useState<BoardProps>(defaultBoard);
   const [winner, setWinner] = useState<CellType | null>(null);
   const [player, setPlayer] = useState({
     X: 0,
@@ -161,26 +176,33 @@ function TicTacToe() {
       wasm.calculateWinner(board.squares).then(setWinner);
     }
   }, [loaded, board.squares]);
+  useEffect(() => {
+    if (!loaded) return;
+    if (calculating) return;
+
+    const side = board.xIsNext ? 'X' : 'O';
+    if (player[side] !== 1) return;
+
+    setCalculating(true);
+    wasm.search(board.squares, side).then((result: SearchResponse) => {
+      console.log(result);
+      if (typeof result.position === 'number') {
+        setBoard(put(board, result.position));
+      }
+      setCalculating(false);
+    });
+  }, [loaded, calculating, board, player])
 
   if (!loaded) {
     return <div>Loading...</div>;
   }
 
   function handleClick(i: number): void {
-    if (winner !== null) {
-      return;
-    }
-    if (board.squares[i] !== 'E') {
-      return;
-    }
+    if (winner !== null) return;
+    if (board.squares[i] !== 'E') return;
     const next = board.xIsNext ? 'X' : 'O';
     if (player[next] === 0) {
-      const s = board.squares.slice();
-      s[i] = next;
-      setBoard({
-        squares: s,
-        xIsNext: !board.xIsNext,
-      });
+      setBoard(put(board, i));
     }
   }
 
