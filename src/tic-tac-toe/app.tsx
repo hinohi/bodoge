@@ -1,6 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import * as Comlink from 'comlink';
 
+import {Svg, Cross, Circle, Square} from '../svg';
+
 const wasm = Comlink.wrap<import('./worker').ModuleType>(new Worker('./worker', {
   name: 'tic-tac-toe',
   type: 'module'
@@ -34,11 +36,9 @@ interface SearchResponse {
 }
 
 function Board(props: BoardProps & Readonly<{ onClick: (i: number) => void }>) {
-  const size = 300;
+  const size = 400;
   return (
-    <svg
-      version="1.1"
-      xmlns="http://www.w3.org/2000/svg"
+    <Svg
       width={size}
       height={size}
     >
@@ -48,55 +48,14 @@ function Board(props: BoardProps & Readonly<{ onClick: (i: number) => void }>) {
         const y = Math.floor(i / 3) * length;
         const cx = x + length / 2;
         const cy = y + length / 2;
-        const rect = (<rect
-          x={x + 2}
-          y={y + 2}
-          width={length - 4}
-          height={length - 4}
-          rx="6"
-          ry="6"
-          fill="rgba(255, 255, 255, 0)"
-          stroke="#111111"
-          onClick={() => props.onClick(i)}
-        />);
+        const rect = <Square x={x} y={y} size={length} onClick={() => props.onClick(i)}/>;
         let mark;
         switch (c) {
           case 'X':
-            const a = length * 0.9;
-            const b = length * 0.1;
-            mark = (
-              <g
-                fill="#53B0FF"
-                transform={`rotate(45 ${cx} ${cy})`}
-              >
-                <rect
-                  x={cx - a / 2}
-                  y={cy - b / 2}
-                  rx={b / 2}
-                  width={a}
-                  height={b}
-                />
-                <rect
-                  x={cx - b / 2}
-                  y={cy - a / 2}
-                  ry={b / 2}
-                  width={b}
-                  height={a}
-                />
-              </g>
-            );
+            mark = <Cross centerX={cx} centerY={cy} size={length}/>;
             break;
           case 'O':
-            mark = (
-              <circle
-                cx={cx}
-                cy={cy}
-                r={length / 3.5}
-                fill="none"
-                stroke="#FF972D"
-                strokeWidth={length / 10}
-              />
-            );
+            mark = <Circle centerX={cx} centerY={cy} size={length}/>;
             break;
           default:
             break;
@@ -108,7 +67,7 @@ function Board(props: BoardProps & Readonly<{ onClick: (i: number) => void }>) {
           </React.Fragment>
         );
       })}
-    </svg>
+    </Svg>
   );
 }
 
