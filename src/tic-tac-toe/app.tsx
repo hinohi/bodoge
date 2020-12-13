@@ -92,16 +92,30 @@ function Board(props: BoardProps & Readonly<{ onClick: (i: number) => void }>) {
   );
 }
 
+function ResetButton(props: Readonly<{ hasWinner: boolean, onClick: () => void }>) {
+  if (props.hasWinner) {
+    return (
+      <button className="button is-primary" onClick={props.onClick}>
+        Reset
+      </button>
+    );
+  } else {
+    return (
+      <button className="button is-danger" onClick={props.onClick}>
+        Reset
+      </button>
+    );
+  }
+}
 
 function TicTacToe() {
-  const [loaded, setLoaded] = useState(false);
-  const [history, setHistory] = useState([{
+  const defaultBoard = {
     squares: Array(9).fill('E'),
     xIsNext: true,
-  }]);
-  const [winner, setWinner] = useState('E');
-
-  const board = history[history.length - 1];
+  };
+  const [loaded, setLoaded] = useState(false);
+  const [board, setBoard] = useState(defaultBoard);
+  const [winner, setWinner] = useState<CellType | null>(null);
 
   useEffect(() => {
     wasm.initialize().then(() => setLoaded(true));
@@ -117,7 +131,7 @@ function TicTacToe() {
   }
 
   function handleClick(i: number): void {
-    if (winner !== 'E') {
+    if (winner !== null) {
       return;
     }
     if (board.squares[i] !== 'E') {
@@ -125,33 +139,24 @@ function TicTacToe() {
     }
     const s = board.squares.slice();
     s[i] = board.xIsNext ? 'X' : 'O';
-    setHistory(history.concat({
+    setBoard({
       squares: s,
       xIsNext: !board.xIsNext,
-    }));
+    });
   }
 
-  function jumpTo(i: number): void {
-    setHistory(history.slice(0, i + 1));
+  function handleReset(): void {
+    setBoard(defaultBoard);
   }
 
   let status;
-  if (winner !== 'E') {
-    status = `winner: ${winner}`;
-  } else {
+  if (winner === null) {
     status = `next player: ${board.xIsNext ? 'X' : 'O'}`
+  } else if (winner === 'E') {
+    status = 'draw';
+  } else {
+    status = `winner: ${winner}`;
   }
-
-  const moves = history
-    .slice(0, history.length - 1)
-    .map((board, move) => {
-      const desc = move === 0 ? 'Go to game start' : `Go to #${move}`;
-      return (
-        <li key={move}>
-          <button onClick={() => jumpTo(move)}>{desc}</button>
-        </li>
-      );
-    });
 
   return (
     <div className="container">
@@ -163,10 +168,10 @@ function TicTacToe() {
         />
       </div>
       <div className="content">
-        <div>{status}</div>
+        <p>{status}</p>
       </div>
       <div className="content">
-        <ol>{moves}</ol>
+        <ResetButton hasWinner={winner !== null} onClick={handleReset}/>
       </div>
     </div>
   );

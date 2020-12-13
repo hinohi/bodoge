@@ -21,7 +21,7 @@ impl CellType {
     }
 }
 
-pub fn calculate_winner(board: &[CellType; 9]) -> CellType {
+pub fn calculate_winner(board: &[CellType; 9]) -> Option<CellType> {
     static LINES: &[[usize; 3]] = &[
         [0, 1, 2],
         [3, 4, 5],
@@ -34,10 +34,14 @@ pub fn calculate_winner(board: &[CellType; 9]) -> CellType {
     ];
     for &[a, b, c] in LINES.iter() {
         if board[a] != E && board[a] == board[b] && board[a] == board[c] {
-            return board[a];
+            return Some(board[a]);
         }
     }
-    return E;
+    if board.iter().all(|&c| c != E) {
+        Some(E)
+    } else {
+        None
+    }
 }
 
 #[wasm_bindgen(js_name = calculateWinner)]
@@ -53,7 +57,7 @@ pub fn search(board: &[CellType; 9], next: CellType) -> (Option<usize>, i32) {
     fn dfs<R: Rng>(rng: &mut R, board: &mut [CellType; 9], next: CellType) -> (Option<usize>, i32) {
         let winner = calculate_winner(board);
         match winner {
-            E => {
+            None => {
                 let mut best = Vec::new();
                 let mut best_score = i32::MIN;
                 for pos in 0..9 {
@@ -74,13 +78,10 @@ pub fn search(board: &[CellType; 9], next: CellType) -> (Option<usize>, i32) {
                         best_score = score;
                     }
                 }
-                if best.is_empty() {
-                    (None, 0)
-                } else {
-                    (Some(*best.choose(rng).unwrap()), best_score)
-                }
+                (Some(*best.choose(rng).unwrap()), best_score)
             }
-            c => {
+            Some(E) => (None, 0),
+            Some(c) => {
                 if c == next {
                     (None, 1024)
                 } else {
@@ -108,10 +109,10 @@ mod tests {
 
     #[test]
     fn calc_winner() {
-        assert_eq!(calculate_winner(&[E; 9]), E);
-        assert_eq!(calculate_winner(&[X, X, X, E, E, E, E, E, E]), X);
-        assert_eq!(calculate_winner(&[X, X, E, O, O, O, E, E, E]), O);
-        assert_eq!(calculate_winner(&[O, O, X, X, X, O, O, X, X]), E);
+        assert_eq!(calculate_winner(&[E; 9]), None);
+        assert_eq!(calculate_winner(&[X, X, X, E, E, E, E, E, E]), Some(X));
+        assert_eq!(calculate_winner(&[X, X, E, O, O, O, E, E, E]), Some(O));
+        assert_eq!(calculate_winner(&[O, O, X, X, X, O, O, X, X]), Some(E));
     }
 
     #[test]
