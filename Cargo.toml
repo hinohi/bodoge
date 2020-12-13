@@ -3,3 +3,7 @@ members = [
     "twice",
     "tic-tac-toe",
 ]
+
+[profile.release]
+lto = true
+opt-level = "z"

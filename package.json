@@ -2,7 +2,7 @@
   "name": "bodoge",
   "version": "0.1.0",
   "author": "Daiju Nakayama",
-  "homepage": "https://hinoni.github.io/bodoge/",
+  "homepage": "https://hinohi.github.io/bodoge/",
   "private": true,
   "devDependencies": {
     "@testing-library/jest-dom": "^5.11.6",
