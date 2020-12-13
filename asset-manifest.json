@@ -1,0 +1,36 @@
+{
+  "files": {
+    "main.js": "/bodoge/static/js/main.a4edcffa.chunk.js",
+    "main.js.map": "/bodoge/static/js/main.a4edcffa.chunk.js.map",
+    "runtime-main.js": "/bodoge/static/js/runtime-main.df501cd6.js",
+    "runtime-main.js.map": "/bodoge/static/js/runtime-main.df501cd6.js.map",
+    "static/css/2.632c9fdd.chunk.css": "/bodoge/static/css/2.632c9fdd.chunk.css",
+    "static/js/2.eff04160.chunk.js": "/bodoge/static/js/2.eff04160.chunk.js",
+    "static/js/2.eff04160.chunk.js.map": "/bodoge/static/js/2.eff04160.chunk.js.map",
+    "static/js/3.417d811a.chunk.js": "/bodoge/static/js/3.417d811a.chunk.js",
+    "static/js/3.417d811a.chunk.js.map": "/bodoge/static/js/3.417d811a.chunk.js.map",
+    "static/js/4.d5756f7e.chunk.js": "/bodoge/static/js/4.d5756f7e.chunk.js",
+    "static/js/4.d5756f7e.chunk.js.map": "/bodoge/static/js/4.d5756f7e.chunk.js.map",
+    "static/js/5.2299b6d1.chunk.js": "/bodoge/static/js/5.2299b6d1.chunk.js",
+    "static/js/5.2299b6d1.chunk.js.map": "/bodoge/static/js/5.2299b6d1.chunk.js.map",
+    "1.406130878844e629a6d6.chunk.worker.js": "/bodoge/1.406130878844e629a6d6.chunk.worker.js",
+    "1.406130878844e629a6d6.chunk.worker.js.map": "/bodoge/1.406130878844e629a6d6.chunk.worker.js.map",
+    "1.8d8f03374aaf4048aa95.chunk.worker.js": "/bodoge/1.8d8f03374aaf4048aa95.chunk.worker.js",
+    "1.8d8f03374aaf4048aa95.chunk.worker.js.map": "/bodoge/1.8d8f03374aaf4048aa95.chunk.worker.js.map",
+    "5760bf0943bd0740ce07.module.wasm": "/bodoge/5760bf0943bd0740ce07.module.wasm",
+    "884e5fc284ebe4d47eee.module.wasm": "/bodoge/884e5fc284ebe4d47eee.module.wasm",
+    "index.html": "/bodoge/index.html",
+    "static/css/2.632c9fdd.chunk.css.map": "/bodoge/static/css/2.632c9fdd.chunk.css.map",
+    "static/js/2.eff04160.chunk.js.LICENSE.txt": "/bodoge/static/js/2.eff04160.chunk.js.LICENSE.txt",
+    "t.406130878844e629a6d6.worker.js": "/bodoge/t.406130878844e629a6d6.worker.js",
+    "t.406130878844e629a6d6.worker.js.map": "/bodoge/t.406130878844e629a6d6.worker.js.map",
+    "ttt.8d8f03374aaf4048aa95.worker.js": "/bodoge/ttt.8d8f03374aaf4048aa95.worker.js",
+    "ttt.8d8f03374aaf4048aa95.worker.js.map": "/bodoge/ttt.8d8f03374aaf4048aa95.worker.js.map"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.df501cd6.js",
+    "static/css/2.632c9fdd.chunk.css",
+    "static/js/2.eff04160.chunk.js",
+    "static/js/main.a4edcffa.chunk.js"
+  ]
+}
