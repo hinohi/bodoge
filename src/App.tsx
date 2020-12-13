@@ -38,9 +38,33 @@ function App() {
               <TicTacToe/>
             </Suspense>
           </Route>
+          <Route path="/">
+            <Home/>
+          </Route>
         </Switch>
       </div>
     </Router>
+  );
+}
+
+function Home() {
+  return (
+    <div>
+      <section className="section">
+        <div className="container">
+          <div className="content">
+            <h1>Bodoge!（ボドゲ！）</h1>
+            <p>
+              Play some board games with the game AI provided by WASM.
+            </p>
+            <p>
+              Source code is available {" "}
+              <a href="https://github.com/hinohi/bodoge" target="_blank" rel="noreferrer">here</a>.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
 
