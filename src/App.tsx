@@ -3,7 +3,7 @@ import React, { useState } from "react";
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import worker from "workerize-loader!./twice.worker";
 
-const workerInstance = worker();
+const workerInstance: typeof import('twice') = worker();
 
 const App = () => {
   const [value, setValue] = useState(1);
