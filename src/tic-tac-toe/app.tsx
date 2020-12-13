@@ -21,6 +21,10 @@ type CellType = 'E' | 'X' | 'O';
 interface BoardProps {
   readonly squares: ReadonlyArray<CellType>
   readonly xIsNext: boolean
+  readonly history: ReadonlyArray<{
+    readonly position: number
+    readonly score?: number
+  }>
 }
 
 interface SelectProps {
@@ -35,7 +39,7 @@ interface SearchResponse {
   readonly score: number
 }
 
-function Board(props: BoardProps & Readonly<{ onClick: (i: number) => void }>) {
+function Board(props: Readonly<{ squares: ReadonlyArray<CellType>, onClick: (i: number) => void }>) {
   const size = 400;
   return (
     <Svg
@@ -105,12 +109,13 @@ function Select(props: SelectProps) {
   )
 }
 
-function put(board: BoardProps, position: number): BoardProps {
+function put(board: BoardProps, position: number, score?: number): BoardProps {
   const s = board.squares.slice();
   s[position] = board.xIsNext ? 'X' : 'O';
   return {
     squares: s,
     xIsNext: !board.xIsNext,
+    history: board.history.concat([{position, score}]),
   };
 }
 
@@ -118,6 +123,7 @@ function TicTacToe() {
   const defaultBoard = {
     squares: Array(9).fill('E'),
     xIsNext: true,
+    history: [],
   } as const;
   const playerList = ['Human', 'AI (Full Exploration)'] as const;
 
@@ -125,10 +131,7 @@ function TicTacToe() {
   const [calculating, setCalculating] = useState(false);
   const [board, setBoard] = useState<BoardProps>(defaultBoard);
   const [winner, setWinner] = useState<CellType | null>(null);
-  const [player, setPlayer] = useState({
-    X: 0,
-    O: 0,
-  });
+  const [player, setPlayer] = useState({X: 0, O: 0});
 
   useEffect(() => {
     if (loaded) {
@@ -146,7 +149,7 @@ function TicTacToe() {
     wasm.search(board.squares, side).then((result: SearchResponse) => {
       console.log(result);
       if (typeof result.position === 'number') {
-        setBoard(put(board, result.position));
+        setBoard(put(board, result.position, result.score));
       }
       setCalculating(false);
     });
@@ -188,6 +191,14 @@ function TicTacToe() {
     status = `winner: ${winner}`;
   }
 
+  const history = board.history.map((h, i) => {
+    if (h.score != null) {
+      return <li key={i}>{'OX'[i % 2]}: pos={h.position} score={h.score}</li>
+    } else {
+      return <li key={i}>{'OX'[i % 2]}: pos={h.position}</li>
+    }
+  });
+
   return (
     <div className="container">
       <div className="content is-flex-direction-row">
@@ -210,7 +221,6 @@ function TicTacToe() {
       <div className="content">
         <Board
           squares={board.squares}
-          xIsNext={board.xIsNext}
           onClick={handleClick}
         />
       </div>
@@ -219,6 +229,9 @@ function TicTacToe() {
       </div>
       <div className="content">
         <ResetButton hasWinner={winner !== null} onClick={resetBoard}/>
+      </div>
+      <div className="content">
+        <ol>{history}</ol>
       </div>
     </div>
   );
