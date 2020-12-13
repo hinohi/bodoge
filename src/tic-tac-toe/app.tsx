@@ -6,11 +6,26 @@ const wasm = Comlink.wrap<import('./worker').ModuleType>(new Worker('./worker', 
   type: 'module'
 }));
 
+function useWasm(): boolean {
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    wasm.initialize().then(() => setLoaded(true));
+  }, [loaded]);
+  return loaded;
+}
+
 type CellType = 'E' | 'X' | 'O';
 
 interface BoardProps {
   readonly squares: ReadonlyArray<CellType>
   readonly xIsNext: boolean
+}
+
+interface SelectProps {
+  readonly items: ReadonlyArray<string>
+  readonly isDisabled: boolean
+  readonly selected: number
+  readonly onChange: (i: number) => void
 }
 
 function Board(props: BoardProps & Readonly<{ onClick: (i: number) => void }>) {
@@ -108,18 +123,39 @@ function ResetButton(props: Readonly<{ hasWinner: boolean, onClick: () => void }
   }
 }
 
+function Select(props: SelectProps) {
+  return (
+    <div className="select">
+      <select
+        onChange={(e) => props.onChange(parseInt(e.target.value))}
+        value={props.selected}
+        disabled={props.isDisabled}
+      >
+        {props.items.map((s, i) => (
+          <option key={i} value={i}>
+            {s}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
 function TicTacToe() {
   const defaultBoard = {
     squares: Array(9).fill('E'),
     xIsNext: true,
   };
-  const [loaded, setLoaded] = useState(false);
+  const playerList = ['Human', 'AI (Full Exploration)'];
+
+  const loaded = useWasm();
   const [board, setBoard] = useState(defaultBoard);
   const [winner, setWinner] = useState<CellType | null>(null);
+  const [player, setPlayer] = useState({
+    X: 0,
+    O: 0,
+  });
 
-  useEffect(() => {
-    wasm.initialize().then(() => setLoaded(true));
-  }, [loaded]);
   useEffect(() => {
     if (loaded) {
       wasm.calculateWinner(board.squares).then(setWinner);
@@ -137,15 +173,28 @@ function TicTacToe() {
     if (board.squares[i] !== 'E') {
       return;
     }
-    const s = board.squares.slice();
-    s[i] = board.xIsNext ? 'X' : 'O';
-    setBoard({
-      squares: s,
-      xIsNext: !board.xIsNext,
-    });
+    const next = board.xIsNext ? 'X' : 'O';
+    if (player[next] === 0) {
+      const s = board.squares.slice();
+      s[i] = next;
+      setBoard({
+        squares: s,
+        xIsNext: !board.xIsNext,
+      });
+    }
   }
 
-  function handleReset(): void {
+  function handlePlayerChange(side: 'X' | 'O', i: number): void {
+    if (player[side] !== i) {
+      setPlayer({
+        ...player,
+        [side]: i,
+      });
+      resetBoard();
+    }
+  }
+
+  function resetBoard(): void {
     setBoard(defaultBoard);
   }
 
@@ -160,6 +209,23 @@ function TicTacToe() {
 
   return (
     <div className="container">
+      <div className="content is-flex-direction-row">
+        X
+        <Select
+          items={playerList}
+          selected={player.X}
+          isDisabled={false}
+          onChange={(i) => handlePlayerChange('X', i)}
+        />
+        vs
+        <Select
+          items={playerList}
+          selected={player.O}
+          isDisabled={false}
+          onChange={(i) => handlePlayerChange('O', i)}
+        />
+        O
+      </div>
       <div className="content">
         <Board
           squares={board.squares}
@@ -171,7 +237,7 @@ function TicTacToe() {
         <p>{status}</p>
       </div>
       <div className="content">
-        <ResetButton hasWinner={winner !== null} onClick={handleReset}/>
+        <ResetButton hasWinner={winner !== null} onClick={resetBoard}/>
       </div>
     </div>
   );
