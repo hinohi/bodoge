@@ -22,7 +22,10 @@ module.exports = function override(config, env) {
     use: [{loader: require.resolve('wasm-loader'), options: {}}]
   });
 
-  config.plugins.push(new WorkerPlugin());
+  config.plugins.push(new WorkerPlugin({
+    filename: '[name].[hash].worker.js',
+    chunkFilename: '[name].[hash].chunk.worker.js',
+  }));
 
   return config;
 };

@@ -115,11 +115,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "twice"
+name = "tic-tac-toe"
 version = "0.1.0"
 dependencies = [
  "js-sys",
  "serde",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "twice"
+version = "0.1.0"
+dependencies = [
  "wasm-bindgen",
 ]
 
