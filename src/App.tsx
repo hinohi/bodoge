@@ -9,10 +9,11 @@ import {
 
 const Twice = React.lazy(() => import('./twice/app'));
 const TicTacToe = React.lazy(() => import('./tic-tac-toe/app'));
+const UTicTacToe = React.lazy(() => import('./ultimate-tic-tac-toe/app'));
 
 function App() {
   return (
-    <Router>
+    <Router basename="/bodoge">
       <div>
         <nav className="navbar">
           <div className="navbar-menu">
@@ -25,6 +26,9 @@ function App() {
             <Link to="/tic-tac-toe" className="navbar-item">
               Tic Tac Toe
             </Link>
+            <Link to="/ultimate-tic-tac-toe" className="navbar-item">
+              Ultimate Tic Tac Toe
+            </Link>
           </div>
         </nav>
         <Switch>
@@ -34,8 +38,13 @@ function App() {
             </Suspense>
           </Route>
           <Route path="/tic-tac-toe">
-            <Suspense fallback={<div>Loading TicTacToe...</div>}>
+            <Suspense fallback={<div>Loading Tic Tac Toe...</div>}>
               <TicTacToe/>
+            </Suspense>
+          </Route>
+          <Route path="/ultimate-tic-tac-toe">
+            <Suspense fallback={<div>Loading Ultimate Tic Tac Toe...</div>}>
+              <UTicTacToe/>
             </Suspense>
           </Route>
           <Route path="/">

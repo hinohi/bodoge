@@ -62,8 +62,6 @@ function Board(props: Readonly<{ squares: ReadonlyArray<CellType>, onClick: (i: 
           case 'O':
             mark = <Circle centerX={cx} centerY={cy} size={length}/>;
             break;
-          default:
-            break;
         }
         return (
           <React.Fragment key={i}>
