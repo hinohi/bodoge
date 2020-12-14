@@ -1,18 +1,20 @@
 {
   "files": {
-    "main.js": "/bodoge/static/js/main.feda9cb6.chunk.js",
-    "main.js.map": "/bodoge/static/js/main.feda9cb6.chunk.js.map",
-    "runtime-main.js": "/bodoge/static/js/runtime-main.0f85e6ae.js",
-    "runtime-main.js.map": "/bodoge/static/js/runtime-main.0f85e6ae.js.map",
+    "main.js": "/bodoge/static/js/main.382b2739.chunk.js",
+    "main.js.map": "/bodoge/static/js/main.382b2739.chunk.js.map",
+    "runtime-main.js": "/bodoge/static/js/runtime-main.d8239b39.js",
+    "runtime-main.js.map": "/bodoge/static/js/runtime-main.d8239b39.js.map",
     "static/css/2.632c9fdd.chunk.css": "/bodoge/static/css/2.632c9fdd.chunk.css",
-    "static/js/2.eff04160.chunk.js": "/bodoge/static/js/2.eff04160.chunk.js",
-    "static/js/2.eff04160.chunk.js.map": "/bodoge/static/js/2.eff04160.chunk.js.map",
-    "static/js/3.0efb78af.chunk.js": "/bodoge/static/js/3.0efb78af.chunk.js",
-    "static/js/3.0efb78af.chunk.js.map": "/bodoge/static/js/3.0efb78af.chunk.js.map",
-    "static/js/4.8ce82042.chunk.js": "/bodoge/static/js/4.8ce82042.chunk.js",
-    "static/js/4.8ce82042.chunk.js.map": "/bodoge/static/js/4.8ce82042.chunk.js.map",
-    "static/js/5.8f103003.chunk.js": "/bodoge/static/js/5.8f103003.chunk.js",
-    "static/js/5.8f103003.chunk.js.map": "/bodoge/static/js/5.8f103003.chunk.js.map",
+    "static/js/2.2ac33b09.chunk.js": "/bodoge/static/js/2.2ac33b09.chunk.js",
+    "static/js/2.2ac33b09.chunk.js.map": "/bodoge/static/js/2.2ac33b09.chunk.js.map",
+    "static/js/3.ce29657e.chunk.js": "/bodoge/static/js/3.ce29657e.chunk.js",
+    "static/js/3.ce29657e.chunk.js.map": "/bodoge/static/js/3.ce29657e.chunk.js.map",
+    "static/js/4.066ee9df.chunk.js": "/bodoge/static/js/4.066ee9df.chunk.js",
+    "static/js/4.066ee9df.chunk.js.map": "/bodoge/static/js/4.066ee9df.chunk.js.map",
+    "static/js/5.e15f4145.chunk.js": "/bodoge/static/js/5.e15f4145.chunk.js",
+    "static/js/5.e15f4145.chunk.js.map": "/bodoge/static/js/5.e15f4145.chunk.js.map",
+    "static/js/6.cee9d25b.chunk.js": "/bodoge/static/js/6.cee9d25b.chunk.js",
+    "static/js/6.cee9d25b.chunk.js.map": "/bodoge/static/js/6.cee9d25b.chunk.js.map",
     "1.63fb527b1224a4fea77a.chunk.worker.js": "/bodoge/1.63fb527b1224a4fea77a.chunk.worker.js",
     "1.63fb527b1224a4fea77a.chunk.worker.js.map": "/bodoge/1.63fb527b1224a4fea77a.chunk.worker.js.map",
     "1.fa4e518ff65b419db72f.chunk.worker.js": "/bodoge/1.fa4e518ff65b419db72f.chunk.worker.js",
@@ -21,16 +23,16 @@
     "c4b5ee60d6e2156dd9d5.module.wasm": "/bodoge/c4b5ee60d6e2156dd9d5.module.wasm",
     "index.html": "/bodoge/index.html",
     "static/css/2.632c9fdd.chunk.css.map": "/bodoge/static/css/2.632c9fdd.chunk.css.map",
-    "static/js/2.eff04160.chunk.js.LICENSE.txt": "/bodoge/static/js/2.eff04160.chunk.js.LICENSE.txt",
+    "static/js/2.2ac33b09.chunk.js.LICENSE.txt": "/bodoge/static/js/2.2ac33b09.chunk.js.LICENSE.txt",
     "tic-tac-toe.fa4e518ff65b419db72f.worker.js": "/bodoge/tic-tac-toe.fa4e518ff65b419db72f.worker.js",
     "tic-tac-toe.fa4e518ff65b419db72f.worker.js.map": "/bodoge/tic-tac-toe.fa4e518ff65b419db72f.worker.js.map",
     "twice.63fb527b1224a4fea77a.worker.js": "/bodoge/twice.63fb527b1224a4fea77a.worker.js",
     "twice.63fb527b1224a4fea77a.worker.js.map": "/bodoge/twice.63fb527b1224a4fea77a.worker.js.map"
   },
   "entrypoints": [
-    "static/js/runtime-main.0f85e6ae.js",
+    "static/js/runtime-main.d8239b39.js",
     "static/css/2.632c9fdd.chunk.css",
-    "static/js/2.eff04160.chunk.js",
-    "static/js/main.feda9cb6.chunk.js"
+    "static/js/2.2ac33b09.chunk.js",
+    "static/js/main.382b2739.chunk.js"
   ]
 }
