@@ -25,6 +25,7 @@
   "dependencies": {
     "bulma": "^0.9.1",
     "comlink": "^4.3.0",
+    "crate-connect-four": "./connect-four/pkg",
     "crate-tic-tac-toe": "./tic-tac-toe/pkg",
     "crate-twice": "./twice/pkg",
     "react": "^17.0.1",

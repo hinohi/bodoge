@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import * as Comlink from 'comlink';
 
 import {Svg, Cross, Circle, Square} from '../svg';
+import {ResetButton} from '../button';
 
 const wasm = Comlink.wrap<import('./worker').ModuleType>(new Worker('./worker', {
   name: 'tic-tac-toe',
@@ -74,22 +75,6 @@ function Board(props: Readonly<{ squares: ReadonlyArray<CellType>, onClick: (i: 
   );
 }
 
-function ResetButton(props: Readonly<{ hasWinner: boolean, onClick: () => void }>) {
-  if (props.hasWinner) {
-    return (
-      <button className="button is-primary" onClick={props.onClick}>
-        Reset
-      </button>
-    );
-  } else {
-    return (
-      <button className="button is-danger" onClick={props.onClick}>
-        Reset
-      </button>
-    );
-  }
-}
-
 function Select(props: SelectProps) {
   return (
     <div className="select">
@@ -118,7 +103,7 @@ function put(board: BoardProps, position: number, score?: number): BoardProps {
   };
 }
 
-function TicTacToe() {
+function TicTacToe(): React.ReactElement {
   const defaultBoard: BoardProps = {
     squares: Array(9).fill('E'),
     next: 'X',

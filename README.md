@@ -7,9 +7,13 @@ site: https://hinohi.github.io/bodoge/
 ### Develop
 
 ```
-npm run start
 wasm-pack build twice
 wasm-pack build tic-tac-toe
+wasm-pack build connect-four
+```
+
+```
+npm run start
 ```
 
 ### Test
@@ -17,6 +21,7 @@ wasm-pack build tic-tac-toe
 ```
 cargo test --all
 wasm-pack test --node tic-tac-toe
+wasm-pack test --node connect-four
 ```
 
 ### Release
