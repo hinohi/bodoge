@@ -89,20 +89,43 @@ function put(board: BoardState, col: number): BoardState {
   };
 }
 
+interface SearchResponse {
+  readonly position?: number
+  readonly score: string
+}
+
 function ConnectFour(): React.ReactElement {
   const defaultBoard: BoardState = {
     cols: [[], [], [], [], [], [], []],
     next: 'A',
   } as const;
   const loaded = useWasm();
+  const [calculating, setCalculating] = useState(false);
   const [winner, setWinner] = useState<Side | 'F' | null>(null);
   const [board, setBoard] = useState<BoardState>(defaultBoard);
 
   useEffect(() => {
     if (loaded) {
-      wasm.calculateWinner({cols: board.cols}).then(setWinner);
+      wasm.calculateWinner({cols: board.cols}).then((w: Side | 'F' | null) => {
+        console.log(w);
+        setWinner(w);
+      });
     }
   }, [loaded, board.cols]);
+  useEffect(() => {
+    if (!loaded) return;
+    if (calculating) return;
+    if (winner !== null) return;
+
+    setCalculating(true);
+    wasm.search({cols: board.cols}).then((result: SearchResponse) => {
+      console.log(result);
+      if (typeof result.position === 'number') {
+        setBoard(put(board, result.position));
+      }
+      setCalculating(false);
+    });
+  }, [loaded, calculating, winner, board]);
 
   if (!loaded) {
     return <div>Loading...</div>;

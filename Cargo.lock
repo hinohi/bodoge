@@ -23,6 +23,7 @@ name = "connect-four"
 version = "0.1.0"
 dependencies = [
  "js-sys",
+ "rand",
  "serde",
  "serde_json",
  "wasm-bindgen",

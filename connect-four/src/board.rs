@@ -103,9 +103,7 @@ impl Board {
     }
 
     pub fn is_winner(&self, col: usize) -> bool {
-        let row = self.cols[col].len() - 1;
-        if row >= 4 {}
-        false
+        self.calc_winner().is_some()
     }
 }
 
