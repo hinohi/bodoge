@@ -4,12 +4,13 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link
+  Link,
 } from 'react-router-dom';
 
 const Twice = React.lazy(() => import('./twice/app'));
 const TicTacToe = React.lazy(() => import('./tic-tac-toe/app'));
 const UTicTacToe = React.lazy(() => import('./ultimate-tic-tac-toe/app'));
+const ConnectFour = React.lazy(() => import('./connect-four/app'));
 
 function App() {
   return (
@@ -29,6 +30,9 @@ function App() {
             <Link to="/ultimate-tic-tac-toe" className="navbar-item">
               Ultimate Tic Tac Toe
             </Link>
+            <Link to="/connect-four" className="navbar-item">
+              Connect Four
+            </Link>
           </div>
         </nav>
         <Switch>
@@ -45,6 +49,11 @@ function App() {
           <Route path="/ultimate-tic-tac-toe">
             <Suspense fallback={<div>Loading Ultimate Tic Tac Toe...</div>}>
               <UTicTacToe/>
+            </Suspense>
+          </Route>
+          <Route path="/connect-four">
+            <Suspense fallback={<div>Loading Connect Four...</div>}>
+              <ConnectFour/>
             </Suspense>
           </Route>
           <Route path="/">

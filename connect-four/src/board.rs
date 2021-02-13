@@ -54,6 +54,10 @@ impl Board {
         self.cols[col].pop();
     }
 
+    pub fn is_full(&self) -> bool {
+        self.cols.iter().all(|c| c.len() >= 6)
+    }
+
     pub fn calc_winner(&self) -> Option<Side> {
         for col in self.cols.iter() {
             let r = check_conn(col.iter());

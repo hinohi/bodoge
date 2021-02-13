@@ -8,5 +8,15 @@ pub use board::*;
 pub fn js_calculate_winner(board: &JsValue) -> Result<JsValue, JsValue> {
     let board: Board = board.into_serde().map_err(|e| e.to_string())?;
     let winner = board.calc_winner();
-    JsValue::from_serde(&winner).map_err(|e| e.to_string().into())
+    match winner {
+        Some(Side::A) => Ok("A".into()),
+        Some(Side::B) => Ok("B".into()),
+        None => {
+            if board.is_full() {
+                Ok("F".into())
+            } else {
+                Ok(JsValue::null())
+            }
+        }
+    }
 }
