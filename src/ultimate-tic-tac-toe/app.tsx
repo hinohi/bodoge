@@ -173,6 +173,9 @@ function UTicTacToe() {
   return (
     <div className="container">
       <div className="content">
+        Do not work!
+      </div>
+      <div className="content">
         <Board
           size={9 * 50}
           squares={playingInfo.squares}
