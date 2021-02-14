@@ -104,7 +104,31 @@ impl Board {
     }
 
     pub fn is_winner(&self, col: usize) -> bool {
-        self.calc_winner().is_some()
+        if check_conn(self.cols[col].iter()).is_some() {
+            return true;
+        }
+        let row = self.cols[col].len() - 1;
+        if check_dis(self.cols.iter().map(|c| c.get(row))).is_some() {
+            return true;
+        }
+        let offset = col.min(row);
+        macro_rules! iter {
+            () => {
+                self.cols
+                    .iter()
+                    .skip(col - offset)
+                    .take(row + offset)
+                    .enumerate()
+            };
+        }
+        if check_dis(iter!().map(|(i, c)| c.get(row + i - offset))).is_some() {
+            return true;
+        }
+        let offset = col.min(5 - row);
+        if check_dis(iter!().map(|(i, c)| c.get(row + offset - i))).is_some() {
+            return true;
+        }
+        false
     }
 }
 
