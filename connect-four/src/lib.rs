@@ -55,7 +55,7 @@ pub fn js_search(board: &JsValue) -> Result<JsValue, JsValue> {
         rand::thread_rng().next_u64()
     };
     let rng = SmallRng::seed_from_u64(seed);
-    let mut eval = Playout::new(rng, 32);
+    let mut eval = Playout::new(rng, 64);
     let (position, score) = search(&mut eval, &mut board);
     if !board.can_put(position) {
         return Ok(none_response());

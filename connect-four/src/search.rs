@@ -6,7 +6,7 @@ use rand::{seq::SliceRandom, Rng};
 use crate::{Board, Side};
 
 pub fn search<E: Eval>(eval: &mut E, board: &mut Board) -> (usize, String) {
-    let n = 3;
+    let n = 5;
     let mut mem = Vec::with_capacity(n);
     for _ in 0..n {
         mem.push(HashMap::with_capacity(7));
