@@ -91,6 +91,7 @@ impl Board {
                     self.cols
                         .iter()
                         .skip(col0)
+                        .take(row0 + 1)
                         .enumerate()
                         .map(|(i, c)| c.get(row0 - i)),
                 );
@@ -130,4 +131,30 @@ fn check_dis<'a, I: Iterator<Item = Option<&'a Side>>>(mut iter: I) -> Option<Si
         }
     }
     side.copied()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use Side::*;
+
+    fn put(col: usize, side: Side, board: &mut Board) -> (Option<Side>, bool, bool) {
+        assert!(board.can_put(col));
+        assert_eq!(board.calc_next(), side);
+        board.put(col, side);
+        (board.calc_winner(), board.is_winner(col), board.is_full())
+    }
+
+    #[test]
+    fn play_0() {
+        let mut board = Board::new();
+        assert_eq!(put(3, A, &mut board), (None, false, false));
+        assert_eq!(put(2, B, &mut board), (None, false, false));
+        assert_eq!(put(3, A, &mut board), (None, false, false));
+        assert_eq!(put(2, B, &mut board), (None, false, false));
+        assert_eq!(put(4, A, &mut board), (None, false, false));
+        assert_eq!(put(2, B, &mut board), (None, false, false));
+        assert_eq!(put(5, A, &mut board), (None, false, false));
+        assert_eq!(put(2, B, &mut board), (Some(B), true, false));
+    }
 }

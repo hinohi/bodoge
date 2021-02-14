@@ -18,16 +18,20 @@ pub fn search<E: Eval>(eval: &mut E, board: &mut Board) -> (usize, String) {
             continue;
         }
         board.put(col, side);
-        let a = ab_search(
-            eval,
-            board,
-            side.flip(),
-            0,
-            &mut mem,
-            best_score,
-            E::Score::MAX,
-        )
-        .flip();
+        let a = if board.is_winner(col) {
+            E::Score::MAX
+        } else {
+            ab_search(
+                eval,
+                board,
+                side.flip(),
+                0,
+                &mut mem,
+                E::Score::MIN,
+                best_score.flip(),
+            )
+            .flip()
+        };
         board.back(col);
         if a > best_score {
             best_score = a;
