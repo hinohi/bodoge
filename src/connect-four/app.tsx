@@ -25,6 +25,10 @@ interface BoardBase {
 
 interface BoardState extends BoardBase {
   readonly next: Side
+  readonly history: ReadonlyArray<{
+    readonly position: number
+    readonly score?: string
+  }>
 }
 
 interface BoardProps extends BoardBase {
@@ -73,9 +77,9 @@ function Board(props: BoardProps): React.ReactElement {
   )
 }
 
-function put(board: BoardState, col: number): BoardState {
+function put(board: BoardState, position: number, score?: string): BoardState {
   const cols = board.cols.map((c, i) => {
-    if (col === i) {
+    if (position === i) {
       const s = c.slice();
       s.push(board.next);
       return s;
@@ -86,6 +90,7 @@ function put(board: BoardState, col: number): BoardState {
   return {
     cols,
     next: board.next === 'A' ? 'B' : 'A',
+    history: board.history.concat([{position, score}])
   };
 }
 
@@ -94,38 +99,50 @@ interface SearchResponse {
   readonly score: string
 }
 
+type State =
+  | 'wait_for_input'
+  | 'wait_for_judge'
+  | 'end';
+
 function ConnectFour(): React.ReactElement {
   const defaultBoard: BoardState = {
     cols: [[], [], [], [], [], [], []],
     next: 'A',
+    history: [],
   } as const;
   const loaded = useWasm();
-  const [calculating, setCalculating] = useState(false);
+  const [state, setState] = useState<State>('wait_for_input');
   const [winner, setWinner] = useState<Side | 'F' | null>(null);
   const [board, setBoard] = useState<BoardState>(defaultBoard);
 
   useEffect(() => {
-    if (loaded) {
-      wasm.calculateWinner({cols: board.cols}).then((w: Side | 'F' | null) => {
-        console.log(w);
-        setWinner(w);
-      });
-    }
-  }, [loaded, board.cols]);
-  useEffect(() => {
     if (!loaded) return;
-    if (calculating) return;
-    if (winner !== null) return;
 
-    setCalculating(true);
-    wasm.search({cols: board.cols}).then((result: SearchResponse) => {
-      console.log(result);
-      if (typeof result.position === 'number') {
-        setBoard(put(board, result.position));
-      }
-      setCalculating(false);
-    });
-  }, [loaded, calculating, winner, board]);
+    switch (state) {
+      case 'wait_for_input':
+        wasm.search({cols: board.cols}).then((result: SearchResponse) => {
+          if (typeof result.position === 'number') {
+            setBoard(put(board, result.position, result.score));
+            setState('wait_for_judge');
+          } else {
+            setState('end');
+          }
+        });
+        break;
+      case 'wait_for_judge':
+        wasm.calculateWinner({cols: board.cols}).then((w: Side | 'F' | null) => {
+          setWinner(w);
+          if (w) {
+            setState('end');
+          } else {
+            setState('wait_for_input');
+          }
+        });
+        break;
+      case 'end':
+        break;
+    }
+  }, [loaded, state]);
 
   if (!loaded) {
     return <div>Loading...</div>;
@@ -139,6 +156,7 @@ function ConnectFour(): React.ReactElement {
 
   function resetBoard(): void {
     setBoard(defaultBoard);
+    setState('wait_for_input');
   }
 
   let status;
@@ -150,6 +168,14 @@ function ConnectFour(): React.ReactElement {
     status = `winner: ${winner}`
   }
 
+  const history = board.history.map((h, i) => {
+    if (h.score != null) {
+      return <li key={i}>{'AB'[i % 2]}: pos={h.position} score={h.score}</li>
+    } else {
+      return <li key={i}>{'AB'[i % 2]}: pos={h.position}</li>
+    }
+  });
+
   return (
     <div className="container">
       <div className="content">
@@ -157,9 +183,13 @@ function ConnectFour(): React.ReactElement {
       </div>
       <div className="content">
         <p>{status}</p>
+        <p>{state}</p>
       </div>
       <div className="content">
         <ResetButton hasWinner={winner !== null} onClick={resetBoard}/>
+      </div>
+      <div className="content">
+        <ol>{history}</ol>
       </div>
     </div>
   );
