@@ -6,8 +6,9 @@ use rand::{seq::SliceRandom, Rng};
 use crate::{Board, Side};
 
 pub fn search<E: Eval>(eval: &mut E, board: &mut Board) -> (usize, String) {
-    let mut mem = Vec::with_capacity(6);
-    for _ in 0..mem.len() {
+    let n = 3;
+    let mut mem = Vec::with_capacity(n);
+    for _ in 0..n {
         mem.push(HashMap::with_capacity(7));
     }
     let side = board.calc_next();
@@ -57,7 +58,7 @@ fn ab_search<E: Eval>(
         return *s;
     }
     if board.is_full() {
-        return E::Score::DRAW;
+        return E::draw();
     }
     let mut alpha = alpha;
     for col in 0..7 {
@@ -67,7 +68,7 @@ fn ab_search<E: Eval>(
         board.put(col, side);
         if board.is_winner(col) {
             board.back(col);
-            return E::Score::MAX;
+            return E::win();
         }
         let a = ab_search(
             eval,
@@ -94,12 +95,14 @@ fn ab_search<E: Eval>(
 pub trait Eval {
     type Score: Score;
     fn eval(&mut self, board: &Board, side: Side) -> Self::Score;
+    fn win() -> Self::Score;
+    fn lose() -> Self::Score;
+    fn draw() -> Self::Score;
 }
 
 pub trait Score: Copy + PartialOrd + Debug {
     const MAX: Self;
     const MIN: Self;
-    const DRAW: Self;
     fn flip(self) -> Self;
 }
 
@@ -115,9 +118,8 @@ impl<R> Playout<R> {
 }
 
 impl Score for (f64, f64) {
-    const MAX: Self = (1.0, 0.0);
-    const MIN: Self = (0.0, 0.0);
-    const DRAW: Self = (0.0, 1.0);
+    const MAX: Self = (2.0, 0.0);
+    const MIN: Self = (-1.0, 0.0);
     fn flip(self) -> Self {
         (1.0 - self.0 - self.1, self.1)
     }
@@ -149,5 +151,17 @@ impl<R: Rng> Eval for Playout<R> {
             }
         }
         (win as f64 / self.n as f64, draw as f64 / self.n as f64)
+    }
+
+    fn win() -> (f64, f64) {
+        (1.0, 0.0)
+    }
+
+    fn lose() -> (f64, f64) {
+        (0.0, 0.0)
+    }
+
+    fn draw() -> (f64, f64) {
+        (0.0, 0.0)
     }
 }

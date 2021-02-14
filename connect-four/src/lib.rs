@@ -34,12 +34,17 @@ pub struct SearchResponse {
 #[wasm_bindgen(js_name = search)]
 pub fn js_search(board: &JsValue) -> Result<JsValue, JsValue> {
     let mut board: Board = board.into_serde().map_err(|e| e.to_string())?;
-    if board.is_full() {
-        return JsValue::from_serde(&SearchResponse {
+
+    fn none_response() -> JsValue {
+        JsValue::from_serde(&SearchResponse {
             position: None,
             score: "".to_owned(),
         })
-        .map_err(|e| e.to_string().into());
+        .unwrap()
+    }
+
+    if board.is_full() {
+        return Ok(none_response());
     }
 
     #[cfg(target_arch = "wasm32")]
@@ -52,6 +57,9 @@ pub fn js_search(board: &JsValue) -> Result<JsValue, JsValue> {
     let rng = SmallRng::seed_from_u64(seed);
     let mut eval = Playout::new(rng, 32);
     let (position, score) = search(&mut eval, &mut board);
+    if !board.can_put(position) {
+        return Ok(none_response());
+    }
     JsValue::from_serde(&SearchResponse {
         position: Some(position as u32),
         score,

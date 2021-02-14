@@ -109,28 +109,47 @@ impl Board {
 }
 
 fn check_conn<'a, I: Iterator<Item = &'a Side>>(mut iter: I) -> Option<Side> {
-    let side = iter.next()?;
-    for _ in 0..3 {
-        if side != iter.next()? {
-            return check_conn(iter);
+    let mut side = *iter.next()?;
+    'OUT: loop {
+        for _ in 0..3 {
+            if side != *iter.next()? {
+                side = side.flip();
+                continue 'OUT;
+            }
         }
+        break Some(side);
     }
-    Some(*side)
 }
 
 fn check_dis<'a, I: Iterator<Item = Option<&'a Side>>>(mut iter: I) -> Option<Side> {
-    let side = loop {
-        let r = iter.next()?;
-        if r.is_some() {
-            break r;
-        }
-    };
-    for _ in 0..3 {
-        if side != iter.next()? {
-            return check_dis(iter);
-        }
+    macro_rules! next_some {
+        ($iter:ident) => {
+            loop {
+                let r = iter.next()?;
+                if r.is_some() {
+                    break *r.unwrap();
+                }
+            }
+        };
     }
-    side.copied()
+    let mut side = next_some!(iter);
+    'OUT: loop {
+        for _ in 0..3 {
+            match iter.next()? {
+                None => {
+                    side = next_some!(iter);
+                    continue 'OUT;
+                }
+                Some(&s) => {
+                    if s != side {
+                        side = s;
+                        continue 'OUT;
+                    }
+                }
+            }
+        }
+        break Some(side);
+    }
 }
 
 #[cfg(test)]
@@ -156,5 +175,20 @@ mod tests {
         assert_eq!(put(2, B, &mut board), (None, false, false));
         assert_eq!(put(5, A, &mut board), (None, false, false));
         assert_eq!(put(2, B, &mut board), (Some(B), true, false));
+    }
+
+    #[test]
+    fn play_1() {
+        let mut board = Board::new();
+        assert_eq!(put(3, A, &mut board), (None, false, false));
+        assert_eq!(put(3, B, &mut board), (None, false, false));
+        assert_eq!(put(0, A, &mut board), (None, false, false));
+        assert_eq!(put(2, B, &mut board), (None, false, false));
+        assert_eq!(put(2, A, &mut board), (None, false, false));
+        assert_eq!(put(3, B, &mut board), (None, false, false));
+        assert_eq!(put(2, A, &mut board), (None, false, false));
+        assert_eq!(put(3, B, &mut board), (None, false, false));
+        assert_eq!(put(2, A, &mut board), (None, false, false));
+        assert_eq!(put(3, B, &mut board), (Some(B), true, false));
     }
 }
