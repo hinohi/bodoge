@@ -3,6 +3,7 @@ import * as Comlink from 'comlink';
 
 import {Svg, Cross, Circle, Square} from '../svg';
 import {ResetButton} from '../button';
+import {Select} from '../select';
 
 const wasm = Comlink.wrap<import('./worker').ModuleType>(new Worker('./worker', {
   name: 'tic-tac-toe',
@@ -29,12 +30,6 @@ interface BoardProps {
   }>
 }
 
-interface SelectProps {
-  readonly items: ReadonlyArray<string>
-  readonly isDisabled: boolean
-  readonly selected: number
-  readonly onChange: (i: number) => void
-}
 
 interface SearchResponse {
   readonly position?: number
@@ -73,24 +68,6 @@ function Board(props: Readonly<{ squares: ReadonlyArray<CellType>, onClick: (i: 
       })}
     </Svg>
   );
-}
-
-function Select(props: SelectProps) {
-  return (
-    <div className="select">
-      <select
-        onChange={(e) => props.onChange(parseInt(e.target.value))}
-        value={props.selected}
-        disabled={props.isDisabled}
-      >
-        {props.items.map((s, i) => (
-          <option key={i} value={i}>
-            {s}
-          </option>
-        ))}
-      </select>
-    </div>
-  )
 }
 
 function put(board: BoardProps, position: number, score?: number): BoardProps {

@@ -2,7 +2,8 @@ import React, {useEffect, useState} from 'react';
 import * as Comlink from 'comlink';
 
 import {Svg, Cross, Circle, Square} from '../svg';
-import {ResetButton} from "../button";
+import {ResetButton} from '../button';
+import {Select} from '../select';
 
 const wasm = Comlink.wrap<import('./worker').ModuleType>(new Worker('./worker', {
   name: 'connect-four',
@@ -104,31 +105,51 @@ type State =
   | 'wait_for_judge'
   | 'end';
 
+interface Player {
+  readonly name: string
+  readonly isHuman: boolean
+}
+
 function ConnectFour(): React.ReactElement {
   const defaultBoard: BoardState = {
     cols: [[], [], [], [], [], [], []],
     next: 'A',
     history: [],
   } as const;
+  const playerMaster: ReadonlyArray<Player> = [
+    {
+      name: 'Human',
+      isHuman: true,
+    },
+    {
+      name: 'AI (MC)',
+      isHuman: false,
+    },
+  ] as const;
+
   const loaded = useWasm();
   const [state, setState] = useState<State>('wait_for_input');
   const [winner, setWinner] = useState<Side | 'F' | null>(null);
   const [board, setBoard] = useState<BoardState>(defaultBoard);
+  const [player, setPlayer] = useState({A: 0, B: 0});
 
   useEffect(() => {
     if (!loaded) return;
 
     switch (state) {
-      case 'wait_for_input':
-        wasm.search({cols: board.cols}).then((result: SearchResponse) => {
-          if (typeof result.position === 'number') {
-            setBoard(put(board, result.position, result.score));
-            setState('wait_for_judge');
-          } else {
-            setState('end');
-          }
-        });
+      case 'wait_for_input': {
+        if (!playerMaster[player[board.next]].isHuman) {
+          wasm.search({cols: board.cols}).then((result: SearchResponse) => {
+            if (typeof result.position === 'number') {
+              setBoard(put(board, result.position, result.score));
+              setState('wait_for_judge');
+            } else {
+              setState('end');
+            }
+          });
+        }
         break;
+      }
       case 'wait_for_judge':
         wasm.calculateWinner({cols: board.cols}).then((w: Side | 'F' | null) => {
           setWinner(w);
@@ -149,13 +170,27 @@ function ConnectFour(): React.ReactElement {
   }
 
   function handleClick(i: number): void {
-    if (winner !== null) return;
+    if (state !== 'wait_for_input') return;
     if (board.cols[i].length >= 6) return;
-    setBoard(put(board, i));
+    if (playerMaster[player[board.next]].isHuman) {
+      setBoard(put(board, i));
+      setState('wait_for_judge');
+    }
+  }
+
+  function handlePlayerChange(side: 'A' | 'B', i: number): void {
+    if (player[side] !== i) {
+      setPlayer({
+        ...player,
+        [side]: i,
+      });
+      resetBoard();
+    }
   }
 
   function resetBoard(): void {
     setBoard(defaultBoard);
+    setWinner(null);
     setState('wait_for_input');
   }
 
@@ -178,6 +213,23 @@ function ConnectFour(): React.ReactElement {
 
   return (
     <div className="container">
+      <div className="content is-flex-direction-row">
+        X
+        <Select
+          items={playerMaster.map((p) => p.name)}
+          selected={player.A}
+          isDisabled={false}
+          onChange={(i) => handlePlayerChange('A', i)}
+        />
+        vs
+        <Select
+          items={playerMaster.map((p) => p.name)}
+          selected={player.B}
+          isDisabled={false}
+          onChange={(i) => handlePlayerChange('B', i)}
+        />
+        O
+      </div>
       <div className="content">
         <Board onClick={handleClick} cols={board.cols}/>
       </div>
