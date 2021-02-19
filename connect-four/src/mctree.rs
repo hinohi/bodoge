@@ -57,12 +57,12 @@ pub struct McTreeAI<R> {
 }
 
 impl Node {
-    fn new(board: Board, is_win: bool) -> Node {
+    fn new(board: Board, is_lose: bool) -> Node {
         Node {
             visited_count: 0,
             win_point: 0.0,
             board,
-            result: if is_win { Some(WIN_POINT) } else { None },
+            result: if is_lose { Some(LOSE_POINT) } else { None },
             children: Vec::new(),
         }
     }
@@ -109,6 +109,7 @@ impl<R: Rng> McTreeAI<R> {
                 board.put(col, side);
                 let is_win = board.is_winner(col);
                 if is_win {
+                    node.result = Some(WIN_POINT);
                     node.children = vec![Node::new(board, true)];
                     break;
                 } else {

@@ -145,8 +145,8 @@ function ConnectFour(): React.ReactElement {
     },
     {
       type: 'MCTree',
-      name: 'MCTree (100ms)',
-      limit: 100,
+      name: 'MCTree (200ms)',
+      limit: 200,
       expansion_threshold: 2,
       c: 2.0,
     },
@@ -212,7 +212,7 @@ function ConnectFour(): React.ReactElement {
       case 'end':
         break;
     }
-  }, [loaded, state]);
+  }, [loaded, state, player]);
 
   if (!loaded) {
     return <div>Loading...</div>;
