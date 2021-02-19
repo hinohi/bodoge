@@ -105,10 +105,28 @@ type State =
   | 'wait_for_judge'
   | 'end';
 
-interface Player {
+interface HumanPlayer {
+  readonly type: 'Human'
   readonly name: string
-  readonly isHuman: boolean
 }
+
+interface ABSearchPlayer {
+  readonly type: 'ABSearch'
+  readonly name: string
+}
+
+interface McTreePlayer {
+  readonly type: 'MCTree'
+  readonly name: string
+  readonly limit: number
+  readonly expansion_threshold: number
+  readonly c: number
+}
+
+type Player =
+  | HumanPlayer
+  | ABSearchPlayer
+  | McTreePlayer;
 
 function ConnectFour(): React.ReactElement {
   const defaultBoard: BoardState = {
@@ -118,12 +136,26 @@ function ConnectFour(): React.ReactElement {
   } as const;
   const playerMaster: ReadonlyArray<Player> = [
     {
+      type: 'Human',
       name: 'Human',
-      isHuman: true,
     },
     {
-      name: 'AI (MC)',
-      isHuman: false,
+      type: 'ABSearch',
+      name: 'Alpha-Beta Search'
+    },
+    {
+      type: 'MCTree',
+      name: 'MCTree (100ms)',
+      limit: 100,
+      expansion_threshold: 2,
+      c: 2.0,
+    },
+    {
+      type: 'MCTree',
+      name: 'MCTree (3s)',
+      limit: 3000,
+      expansion_threshold: 2,
+      c: 2.0,
     },
   ] as const;
 
@@ -138,15 +170,32 @@ function ConnectFour(): React.ReactElement {
 
     switch (state) {
       case 'wait_for_input': {
-        if (!playerMaster[player[board.next]].isHuman) {
-          wasm.search({cols: board.cols}).then((result: SearchResponse) => {
-            if (typeof result.position === 'number') {
-              setBoard(put(board, result.position, result.score));
-              setState('wait_for_judge');
-            } else {
-              setState('end');
-            }
-          });
+        const p = playerMaster[player[board.next]];
+        switch (p.type) {
+          case 'Human': {
+            break;
+          }
+          case 'ABSearch': {
+            wasm.search({cols: board.cols}).then((result: SearchResponse) => {
+              if (typeof result.position === 'number') {
+                setBoard(put(board, result.position, result.score));
+                setState('wait_for_judge');
+              } else {
+                setState('end');
+              }
+            });
+            break;
+          }
+          case 'MCTree': {
+            wasm.mctree({cols: board.cols}, p.limit, p.expansion_threshold, p.c).then((result: SearchResponse) => {
+              if (typeof result.position === 'number') {
+                setBoard(put(board, result.position, result.score));
+                setState('wait_for_judge');
+              } else {
+                setState('end');
+              }
+            });
+          }
         }
         break;
       }
@@ -172,7 +221,7 @@ function ConnectFour(): React.ReactElement {
   function handleClick(i: number): void {
     if (state !== 'wait_for_input') return;
     if (board.cols[i].length >= 6) return;
-    if (playerMaster[player[board.next]].isHuman) {
+    if (playerMaster[player[board.next]].name === 'Human') {
       setBoard(put(board, i));
       setState('wait_for_judge');
     }
