@@ -123,7 +123,7 @@ impl<R: Rng> McTreeAI<R> {
         }
         let i = self.choice_child(log_total_count, node);
         let p = 1.0 - self.selection(log_total_count, &mut node.children[i], side.flip());
-        node.win_point += 1.0;
+        node.win_point += p;
         p
     }
 
