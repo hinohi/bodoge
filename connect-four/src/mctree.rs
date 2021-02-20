@@ -99,7 +99,9 @@ impl<R: Rng> McTreeAI<R> {
         }
         if node.children.is_empty() {
             if node.visited_count <= self.expansion_threshold {
-                return random_down(&mut self.rng, &node.board, side);
+                let r = random_down(&mut self.rng, &node.board, side);
+                node.win_point += r;
+                return r;
             }
             for col in 0..7 {
                 if !node.board.can_put(col) {
@@ -111,7 +113,9 @@ impl<R: Rng> McTreeAI<R> {
                 if is_win {
                     node.result = Some(WIN_POINT);
                     node.children = vec![Node::new(board, true)];
-                    break;
+                    node.children[0].visited_count += 1;
+                    node.win_point += WIN_POINT;
+                    return WIN_POINT;
                 } else {
                     node.children.push(Node::new(board, false));
                 }
@@ -119,7 +123,7 @@ impl<R: Rng> McTreeAI<R> {
         }
         let i = self.choice_child(log_total_count, node);
         let p = 1.0 - self.selection(log_total_count, &mut node.children[i], side.flip());
-        node.win_point += p;
+        node.win_point += 1.0;
         p
     }
 
@@ -128,7 +132,7 @@ impl<R: Rng> McTreeAI<R> {
         let side = board.calc_next();
         let mut node = Node::new(board.clone(), false);
         let mut total_count = 0;
-        while start.elapsed() < self.limit {
+        while start.elapsed() < self.limit && node.result.is_none() {
             for _ in 0..1000 {
                 total_count += 1;
                 self.selection((total_count as f64).ln(), &mut node, side);
@@ -137,7 +141,16 @@ impl<R: Rng> McTreeAI<R> {
         let best = node
             .children
             .iter()
-            .max_by(|x, y| x.visited_count.cmp(&y.visited_count))
+            .max_by(|x, y| {
+                use std::cmp::Ordering::*;
+                if x.result == Some(LOSE_POINT) {
+                    Greater
+                } else if y.result == Some(LOSE_POINT) {
+                    Less
+                } else {
+                    x.visited_count.cmp(&y.visited_count)
+                }
+            })
             .unwrap();
         for col in 0..7 {
             if !board.can_put(col) {
@@ -145,7 +158,7 @@ impl<R: Rng> McTreeAI<R> {
             }
             let mut board = board.clone();
             board.put(col, side);
-            if &board == &best.board {
+            if board == best.board {
                 return (col, best.win_point / best.visited_count as f64);
             }
         }

@@ -158,9 +158,8 @@ fn check_dis<'a, I: Iterator<Item = Option<&'a Side>>>(mut iter: I) -> Option<Si
     macro_rules! next_some {
         ($iter:ident) => {
             loop {
-                let r = iter.next()?;
-                if r.is_some() {
-                    break *r.unwrap();
+                if let Some(r) = iter.next()? {
+                    break *r;
                 }
             }
         };
