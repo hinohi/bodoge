@@ -46,6 +46,10 @@ impl Board {
         self.cols[col].len() < 6
     }
 
+    pub fn list_can_put(&self) -> Vec<usize> {
+        (0..7).filter(|&col| self.can_put(col)).collect()
+    }
+
     pub fn put(&mut self, col: usize, side: Side) {
         self.cols[col].push(side);
     }

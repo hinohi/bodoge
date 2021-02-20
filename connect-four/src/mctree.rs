@@ -103,14 +103,12 @@ impl<R: Rng> McTreeAI<R> {
                 node.win_point += r;
                 return r;
             }
-            for col in 0..7 {
-                if !node.board.can_put(col) {
-                    continue;
-                }
+            let can = node.board.list_can_put();
+            node.children.reserve(can.len());
+            for col in can {
                 let mut board = node.board.clone();
                 board.put(col, side);
-                let is_win = board.is_winner(col);
-                if is_win {
+                if board.is_winner(col) {
                     node.result = Some(WIN_POINT);
                     node.children = vec![Node::new(board, true)];
                     node.children[0].visited_count += 1;
@@ -123,7 +121,15 @@ impl<R: Rng> McTreeAI<R> {
         }
         let i = self.choice_child(log_total_count, node);
         let p = 1.0 - self.selection(log_total_count, &mut node.children[i], side.flip());
-        node.win_point += p;
+        if node.children.iter().any(|c| c.result == Some(LOSE_POINT)) {
+            node.result = Some(WIN_POINT);
+            node.win_point = node.visited_count as f64;
+        } else if node.children.iter().all(|c| c.result == Some(WIN_POINT)) {
+            node.result = Some(LOSE_POINT);
+            node.win_point = 0.0;
+        } else {
+            node.win_point += p;
+        }
         p
     }
 
@@ -185,7 +191,7 @@ fn log(s: &str) {
 
 #[cfg(not(target_arch = "wasm32"))]
 fn log(s: &str) {
-    eprintln!(s);
+    eprintln!("{}", s);
 }
 
 #[cfg(target_arch = "wasm32")]
