@@ -152,6 +152,17 @@ impl<R: Rng> McTreeAI<R> {
                 }
             })
             .unwrap();
+
+        log(&format!("children={}", node.children.len()));
+        for child in node.children.iter() {
+            log(&format!(
+                "visited_count={} win_point={} r={:?}",
+                child.visited_count,
+                1.0 - child.win_point / child.visited_count as f64,
+                child.result,
+            ));
+        }
+
         for col in 0..7 {
             if !board.can_put(col) {
                 continue;
@@ -159,11 +170,22 @@ impl<R: Rng> McTreeAI<R> {
             let mut board = board.clone();
             board.put(col, side);
             if board == best.board {
-                return (col, best.win_point / best.visited_count as f64);
+                return (col, 1.0 - best.win_point / best.visited_count as f64);
             }
         }
         (0, 0.0)
     }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn log(s: &str) {
+    let value = wasm_bindgen::JsValue::from(s);
+    web_sys::console::log_1(&value);
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn log(s: &str) {
+    eprintln!(s);
 }
 
 #[cfg(target_arch = "wasm32")]

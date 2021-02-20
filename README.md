@@ -29,6 +29,7 @@ wasm-pack test --node connect-four
 ```
 wasm-pack build --release twice
 wasm-pack build --release tic-tac-toe
+wasm-pack build --release connect-four
 npm run build
 npm run deploy
 ```
