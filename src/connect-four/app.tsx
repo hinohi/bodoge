@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useMemo} from 'react';
 import * as Comlink from 'comlink';
 
 import {Svg, Cross, Circle, Square} from '../svg';
@@ -101,7 +101,9 @@ interface SearchResponse {
 }
 
 type State =
+  | 'queue_input'
   | 'wait_for_input'
+  | 'queue_judge'
   | 'wait_for_judge'
   | 'end';
 
@@ -134,7 +136,7 @@ function ConnectFour(): React.ReactElement {
     next: 'A',
     history: [],
   } as const;
-  const playerMaster: ReadonlyArray<Player> = [
+  const playerMaster = useMemo<ReadonlyArray<Player>>(() => [
     {
       type: 'Human',
       name: 'Human',
@@ -153,11 +155,11 @@ function ConnectFour(): React.ReactElement {
     {
       type: 'MCTree',
       name: 'MCTree (3s)',
-      limit: 3000,
+      limit: 10000,
       expansion_threshold: 2,
       c: 2.0,
     },
-  ] as const;
+  ], []);
 
   const loaded = useWasm();
   const [state, setState] = useState<State>('wait_for_input');
@@ -169,7 +171,8 @@ function ConnectFour(): React.ReactElement {
     if (!loaded) return;
 
     switch (state) {
-      case 'wait_for_input': {
+      case 'queue_input': {
+        setState('wait_for_input');
         const p = playerMaster[player[board.next]];
         switch (p.type) {
           case 'Human': {
@@ -179,7 +182,7 @@ function ConnectFour(): React.ReactElement {
             wasm.search({cols: board.cols}).then((result: SearchResponse) => {
               if (typeof result.position === 'number') {
                 setBoard(put(board, result.position, result.score));
-                setState('wait_for_judge');
+                setState('queue_judge');
               } else {
                 setState('end');
               }
@@ -190,7 +193,7 @@ function ConnectFour(): React.ReactElement {
             wasm.mctree({cols: board.cols}, p.limit, p.expansion_threshold, p.c).then((result: SearchResponse) => {
               if (typeof result.position === 'number') {
                 setBoard(put(board, result.position, result.score));
-                setState('wait_for_judge');
+                setState('queue_judge');
               } else {
                 setState('end');
               }
@@ -199,20 +202,23 @@ function ConnectFour(): React.ReactElement {
         }
         break;
       }
-      case 'wait_for_judge':
+      case 'queue_judge':
+        setState('wait_for_judge');
         wasm.calculateWinner({cols: board.cols}).then((w: Side | 'F' | null) => {
           setWinner(w);
           if (w) {
             setState('end');
           } else {
-            setState('wait_for_input');
+            setState('queue_input');
           }
         });
         break;
+      case 'wait_for_input':
+      case 'wait_for_judge':
       case 'end':
         break;
     }
-  }, [loaded, state, player]);
+  }, [loaded, state, player, playerMaster, board]);
 
   if (!loaded) {
     return <div>Loading...</div>;
@@ -223,7 +229,7 @@ function ConnectFour(): React.ReactElement {
     if (board.cols[i].length >= 6) return;
     if (playerMaster[player[board.next]].name === 'Human') {
       setBoard(put(board, i));
-      setState('wait_for_judge');
+      setState('queue_judge');
     }
   }
 
@@ -240,7 +246,7 @@ function ConnectFour(): React.ReactElement {
   function resetBoard(): void {
     setBoard(defaultBoard);
     setWinner(null);
-    setState('wait_for_input');
+    setState('queue_input');
   }
 
   let status;
