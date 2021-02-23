@@ -25,8 +25,8 @@
   "dependencies": {
     "bulma": "^0.9.2",
     "comlink": "^4.3.0",
-    "crate-connect-four": "./connect-four/pkg",
-    "crate-tic-tac-toe": "./tic-tac-toe/pkg",
+    "crate-connect-four": "./crates/connect-four/pkg",
+    "crate-tic-tac-toe": "./crates/tic-tac-toe/pkg",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",

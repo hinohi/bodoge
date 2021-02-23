@@ -6,28 +6,41 @@ site: https://hinohi.github.io/bodoge/
 
 ### Develop
 
-```
-wasm-pack build tic-tac-toe
-wasm-pack build connect-four
+```sh
+cd crates
+
+for name in */Cargo.toml
+do
+  wasm-pack build $(dirname $name)
+done
 ```
 
-```
+```sh
 npm run start
 ```
 
 ### Test
 
-```
+```sh
+cd crates
+
 cargo test --all
-wasm-pack test --node tic-tac-toe
-wasm-pack test --node connect-four
+for name in */Cargo.toml
+do
+  wasm-pack test --node $(dirname $name)
+done
 ```
 
 ### Release
 
+```sh
+cd crates
+for name in */Cargo.toml
+do
+  wasm-pack build --release $(dirname $name)
+done
 ```
-wasm-pack build --release tic-tac-toe
-wasm-pack build --release connect-four
-npm run build
-npm run deploy
+
+```sh
+npm run build && npm run deploy
 ```
