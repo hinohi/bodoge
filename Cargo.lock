@@ -294,13 +294,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "twice"
-version = "0.1.0"
-dependencies = [
- "wasm-bindgen",
-]
-
-[[package]]
 name = "unicode-xid"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

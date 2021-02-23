@@ -7,7 +7,6 @@ site: https://hinohi.github.io/bodoge/
 ### Develop
 
 ```
-wasm-pack build twice
 wasm-pack build tic-tac-toe
 wasm-pack build connect-four
 ```
@@ -27,7 +26,6 @@ wasm-pack test --node connect-four
 ### Release
 
 ```
-wasm-pack build --release twice
 wasm-pack build --release tic-tac-toe
 wasm-pack build --release connect-four
 npm run build

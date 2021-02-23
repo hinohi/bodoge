@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useMemo} from 'react';
+import React, {useEffect, useState, useMemo, useReducer} from 'react';
 import * as Comlink from 'comlink';
 
 import {Svg, Cross, Circle, Square} from '../svg';
