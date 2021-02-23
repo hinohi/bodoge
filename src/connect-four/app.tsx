@@ -215,7 +215,7 @@ function ConnectFour(): React.ReactElement {
     {
       type: 'MCTree',
       name: 'MCTree (3s)',
-      limit: 10000,
+      limit: 3000,
       expansion_threshold: 2,
       c: 2.0,
     },
@@ -244,7 +244,7 @@ function ConnectFour(): React.ReactElement {
                 console.error(r);
               }
               setCalculating(false);
-            });
+            }).catch((err: any) => console.error(err));
           break;
       }
     } else {
@@ -253,7 +253,7 @@ function ConnectFour(): React.ReactElement {
       wasm.calculateWinner({cols: state.board.cols}).then((winner: Winner) => {
         dispatch({type: 'judge', key, winner});
         setCalculating(false);
-      });
+      }).catch((err: any) => console.error(err));
     }
 
   }, [calculating, playerMaster, state, setCalculating, wasm]);

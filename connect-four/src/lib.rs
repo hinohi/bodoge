@@ -1,6 +1,5 @@
 mod board;
 mod mctree;
-mod search;
 
 use rand::{rngs::SmallRng, SeedableRng};
 use serde::Serialize;
@@ -8,7 +7,6 @@ use wasm_bindgen::prelude::*;
 
 pub use crate::board::*;
 use crate::mctree::McTreeAI;
-use crate::search::{search, Playout};
 
 #[wasm_bindgen(js_name = calculateWinner)]
 pub fn js_calculate_winner(board: &JsValue) -> Result<JsValue, JsValue> {
@@ -50,24 +48,6 @@ fn gen_rng() -> SmallRng {
         rand::thread_rng().next_u64()
     };
     SmallRng::seed_from_u64(seed)
-}
-
-#[wasm_bindgen(js_name = search)]
-pub fn js_search(board: &JsValue) -> Result<JsValue, JsValue> {
-    let mut board: Board = board.into_serde().map_err(|e| e.to_string())?;
-    if board.is_full() {
-        return Ok(none_response());
-    }
-    let mut eval = Playout::new(gen_rng(), 64);
-    let (position, score) = search(&mut eval, &mut board);
-    if !board.can_put(position) {
-        return Ok(none_response());
-    }
-    JsValue::from_serde(&SearchResponse {
-        position: Some(position as u32),
-        score,
-    })
-    .map_err(|e| e.to_string().into())
 }
 
 #[wasm_bindgen(js_name = mctree)]
