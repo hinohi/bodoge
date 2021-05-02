@@ -8,7 +8,6 @@ import {
 } from 'react-router-dom';
 
 const TicTacToe = React.lazy(() => import('./tic-tac-toe/app'));
-const UTicTacToe = React.lazy(() => import('./ultimate-tic-tac-toe/app'));
 const ConnectFour = React.lazy(() => import('./connect-four/app'));
 
 function App() {
@@ -23,9 +22,6 @@ function App() {
             <Link to="/tic-tac-toe" className="navbar-item">
               Tic Tac Toe
             </Link>
-            <Link to="/ultimate-tic-tac-toe" className="navbar-item">
-              Ultimate Tic Tac Toe
-            </Link>
             <Link to="/connect-four" className="navbar-item">
               Connect Four
             </Link>
@@ -35,11 +31,6 @@ function App() {
           <Route path="/tic-tac-toe">
             <Suspense fallback={<div>Loading Tic Tac Toe...</div>}>
               <TicTacToe/>
-            </Suspense>
-          </Route>
-          <Route path="/ultimate-tic-tac-toe">
-            <Suspense fallback={<div>Loading Ultimate Tic Tac Toe...</div>}>
-              <UTicTacToe/>
             </Suspense>
           </Route>
           <Route path="/connect-four">
