@@ -125,10 +125,7 @@ function reducer(state: TicTacToeState, action: Action): TicTacToeState {
       if (state.board.next !== action.side) return state;
       if (state.winner) return state;
       if (!state.judged) return state;
-      if (state.board.squares[action.position] !== 'E') {
-        console.warn(state, action);
-        return state;
-      }
+      if (state.board.squares[action.position] !== 'E') return state;
       return {
         ...state,
         board: put(state.board, action.position, action.score),
@@ -191,7 +188,7 @@ function TicTacToe(): React.ReactElement {
     }
   }
 
-  function handlePlayerChange(side: 'X' | 'O', id: number): void {
+  function handlePlayerChange(side: Side, id: number): void {
     if (state.player[side] !== id) {
       cancel();
       dispatch({type: 'change_player', side, id});

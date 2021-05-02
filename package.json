@@ -26,6 +26,7 @@
     "bulma": "^0.9.2",
     "comlink": "^4.3.0",
     "crate-connect-four": "./connect-four/pkg",
+    "crate-mancala": "./mancala/pkg",
     "crate-tic-tac-toe": "./tic-tac-toe/pkg",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
