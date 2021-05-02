@@ -1,9 +1,9 @@
-import React, {useEffect, useState, useMemo, useReducer} from 'react';
-import {wrap} from 'comlink';
+import React, {useEffect, useMemo, useReducer} from 'react';
 
 import {Svg, Cross, Circle, Square} from '../svg';
 import {ResetButton} from '../button';
 import {Select} from '../select';
+import {useWorker} from '../workerHook';
 import {ModuleType} from './worker';
 
 
@@ -12,30 +12,6 @@ function createWorker(): Worker {
     name: 'connect-four',
     type: 'module'
   });
-}
-
-function useWorker(): [boolean, (calculating: boolean) => void, ModuleType, () => void] {
-  const [worker, setWorker] = useState(createWorker);
-  const proxy = useMemo(() => wrap<ModuleType>(worker), [worker]);
-  const [initialized, setInitialize] = useState(false);
-  const [calculating, setCalculating] = useState(true);
-
-  useEffect(() => {
-    if (initialized) return;
-    proxy.initialize().then(() => {
-      setInitialize(true);
-      setCalculating(false);
-    });
-  }, [initialized, calculating, proxy]);
-
-  function cancel(): void {
-    worker.terminate();
-    setCalculating(true);
-    setWorker(createWorker());
-    setInitialize(false);
-  }
-
-  return [calculating, setCalculating, proxy, cancel];
 }
 
 type Side = 'A' | 'B';
@@ -221,7 +197,7 @@ function ConnectFour(): React.ReactElement {
     },
   ], []);
 
-  const [calculating, setCalculating, wasm, cancel] = useWorker();
+  const [calculating, setCalculating, wasm, cancel] = useWorker<ModuleType>(createWorker);
   const [state, dispatch] = useReducer(reducer, init({A: 0, B: 0}));
 
   useEffect(() => {
@@ -255,7 +231,6 @@ function ConnectFour(): React.ReactElement {
         setCalculating(false);
       }).catch((err: any) => console.error(err));
     }
-
   }, [calculating, playerMaster, state, setCalculating, wasm]);
 
   function handleClick(i: number): void {
