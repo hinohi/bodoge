@@ -27,7 +27,7 @@ interface BoardState extends BoardBase {
 }
 
 interface BoardProps extends BoardBase {
-  readonly onClick: (i: number) => void
+  readonly onClick: (side: Side, i: number) => void
 }
 
 function Board(props: BoardProps) {
@@ -37,7 +37,70 @@ function Board(props: BoardProps) {
       width={size * 8}
       height={size * 2}
     >
+      <NumberRect x={0} y={0} width={size} height={size * 1.5} text={`${props.score[1]}`} key="s1"/>
+      {props.seeds[1].map((s, i) => {
+        return (
+          <NumberRect
+            x={size * (i + 1)}
+            y={0}
+            width={size}
+            height={size}
+            text={`${s}`}
+            key={`Second${i}`}
+            onClick={() => props.onClick('Second', i)}
+          />
+        );
+      })}
+      {props.seeds[0].map((s, i) => {
+        return (
+          <NumberRect
+            x={size * (i + 1)}
+            y={size}
+            width={size}
+            height={size}
+            text={`${s}`}
+            key={`First${i}`}
+            onClick={() => props.onClick('First', i)}
+          />
+        );
+      })}
+      <NumberRect x={size * 7} y={size * 0.5} width={size} height={size * 1.5} text={`${props.score[0]}`} key="s0"/>
     </Svg>
+  );
+}
+
+interface NumberRectProps {
+  readonly x: number
+  readonly y: number
+  readonly width: number
+  readonly height: number
+  readonly text: string
+  readonly onClick?: () => void
+}
+
+function NumberRect(props: NumberRectProps) {
+  const margin = props.width / 50;
+  return (
+    <>
+      <text
+        x={props.x + margin}
+        y={props.y + props.height - margin}
+        fontSize={64}
+      >
+        {props.text}
+      </text>
+      <rect
+        x={props.x + margin}
+        y={props.y + margin}
+        width={props.width - margin * 2}
+        height={props.height - margin * 2}
+        rx={margin * 3}
+        ry={margin * 3}
+        fill="rgba(0, 0, 0, 0)"
+        stroke="#111111"
+        onClick={props.onClick}
+      />
+    </>
   );
 }
 
@@ -156,8 +219,8 @@ function Mancala(): React.ReactElement {
     }
   }, [calculating, playerMaster, state, setCalculating, wasm]);
 
-  function handleClick(i: number): void {
-    const side = state.board.side;
+  function handleClick(side: Side, i: number): void {
+    if (side !== state.board.side) return;
     if (state.player[side] === 0) {
       setCalculating(true);
       const key = state.key;
