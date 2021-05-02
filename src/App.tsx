@@ -9,6 +9,7 @@ import {
 
 const TicTacToe = React.lazy(() => import('./tic-tac-toe/app'));
 const ConnectFour = React.lazy(() => import('./connect-four/app'));
+const Mancala = React.lazy(() => import('./mancala/app'));
 
 function App() {
   return (
@@ -25,6 +26,9 @@ function App() {
             <Link to="/connect-four" className="navbar-item">
               Connect Four
             </Link>
+            <Link to="/mancala" className="navbar-item">
+              Mancala
+            </Link>
           </div>
         </nav>
         <Switch>
@@ -36,6 +40,11 @@ function App() {
           <Route path="/connect-four">
             <Suspense fallback={<div>Loading Connect Four...</div>}>
               <ConnectFour/>
+            </Suspense>
+          </Route>
+          <Route path="/mancala">
+            <Suspense fallback={<div>Loading Mancala...</div>}>
+              <Mancala/>
             </Suspense>
           </Route>
           <Route path="/">

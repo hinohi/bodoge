@@ -238,7 +238,7 @@ function ConnectFour(): React.ReactElement {
     }
   }
 
-  function handlePlayerChange(side: 'A' | 'B', id: number): void {
+  function handlePlayerChange(side: Side, id: number): void {
     if (state.player[side] !== id) {
       cancel();
       dispatch({type: 'change_player', side, id});

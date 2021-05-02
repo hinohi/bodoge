@@ -188,7 +188,7 @@ function TicTacToe(): React.ReactElement {
     }
   }
 
-  function handlePlayerChange(side: 'X' | 'O', id: number): void {
+  function handlePlayerChange(side: Side, id: number): void {
     if (state.player[side] !== id) {
       cancel();
       dispatch({type: 'change_player', side, id});

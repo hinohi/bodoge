@@ -13,7 +13,7 @@ fn calculate_score(board: &Board) -> Option<(u8, u8)> {
     }
 }
 
-#[wasm_bindgen(js_name = calculateWinner)]
+#[wasm_bindgen(js_name = calculateScore)]
 pub fn js_calculate_score(board: &JsValue) -> Result<JsValue, JsValue> {
     let board = parse_board(board)?;
     let scores = calculate_score(&board);
