@@ -1,28 +1,27 @@
-import React, {useEffect, useState} from 'react';
-import * as Comlink from 'comlink';
+import React, {useEffect, useMemo, useReducer} from 'react';
 
 import {Svg, Cross, Circle, Square} from '../svg';
 import {ResetButton} from '../button';
 import {Select} from '../select';
+import {useWorker} from '../workerHook';
+import {ModuleType} from './worker';
 
-const wasm = Comlink.wrap<import('./worker').ModuleType>(new Worker('./worker', {
-  name: 'tic-tac-toe',
-  type: 'module'
-}));
 
-function useWasm(): boolean {
-  const [loaded, setLoaded] = useState(false);
-  useEffect(() => {
-    wasm.initialize().then(() => setLoaded(true));
-  }, [loaded]);
-  return loaded;
+function createWorker(): Worker {
+  return new Worker('./worker', {
+    name: 'tic-tac-toe',
+    type: 'module',
+  });
 }
 
 type Side = 'X' | 'O'
 type CellType = 'E' | Side;
 
-interface BoardProps {
+interface BoardBase {
   readonly squares: ReadonlyArray<CellType>
+}
+
+interface BoardState extends BoardBase {
   readonly next: Side
   readonly history: ReadonlyArray<{
     readonly position: number
@@ -30,13 +29,16 @@ interface BoardProps {
   }>
 }
 
+interface BoardProps extends BoardBase {
+  readonly onClick: (i: number) => void
+}
 
 interface SearchResponse {
   readonly position?: number
   readonly score: number
 }
 
-function Board(props: Readonly<{ squares: ReadonlyArray<CellType>, onClick: (i: number) => void }>) {
+function Board(props: BoardProps) {
   const size = 400;
   return (
     <Svg
@@ -70,7 +72,7 @@ function Board(props: Readonly<{ squares: ReadonlyArray<CellType>, onClick: (i: 
   );
 }
 
-function put(board: BoardProps, position: number, score?: number): BoardProps {
+function put(board: BoardState, position: number, score?: number): BoardState {
   const s = board.squares.slice();
   s[position] = board.next;
   return {
@@ -80,77 +82,137 @@ function put(board: BoardProps, position: number, score?: number): BoardProps {
   };
 }
 
-function TicTacToe(): React.ReactElement {
-  const defaultBoard: BoardProps = {
-    squares: Array(9).fill('E'),
-    next: 'X',
-    history: [],
-  } as const;
-  const playerList = ['Human', 'AI (Full Exploration)'] as const;
+type Winner = CellType | null;
 
-  const loaded = useWasm();
-  const [calculating, setCalculating] = useState(false);
-  const [board, setBoard] = useState<BoardProps>(defaultBoard);
-  const [winner, setWinner] = useState<CellType | null>(null);
-  const [player, setPlayer] = useState({X: 0, O: 0});
+interface TicTacToeState {
+  readonly board: BoardState
+  readonly key: number
+  readonly winner: Winner
+  readonly judged: boolean
+  readonly player: { [P in Side]: number }
+}
 
-  useEffect(() => {
-    if (loaded) {
-      wasm.calculateWinner(board.squares).then(setWinner);
-    }
-  }, [loaded, board.squares]);
-  useEffect(() => {
-    if (!loaded) return;
-    if (calculating) return;
+type Action =
+  | { type: 'reset' }
+  | { type: 'change_player', side: Side, id: number }
+  | { type: 'put', key: number, side: Side, position: number, score?: number }
+  | { type: 'judge', key: number, winner: Winner }
+  ;
 
-    if (player[board.next] !== 1) return;
+function init(player: { [P in Side]: number }): TicTacToeState {
+  return {
+    board: {
+      squares: Array(9).fill('E'),
+      next: 'X',
+      history: [],
+    },
+    key: Math.random(),
+    winner: null,
+    judged: true,
+    player,
+  };
+}
 
-    setCalculating(true);
-    wasm.search(board.squares, board.next).then((result: SearchResponse) => {
-
-      if (typeof result.position === 'number') {
-        setBoard(put(board, result.position, result.score));
+function reducer(state: TicTacToeState, action: Action): TicTacToeState {
+  switch (action.type) {
+    case 'reset':
+      return init(state.player);
+    case 'change_player':
+      if (state.player[action.side] === action.id) return state;
+      return init({...state.player, [action.side]: action.id});
+    case 'put':
+      if (action.key !== state.key) return state;
+      if (state.board.next !== action.side) return state;
+      if (state.winner) return state;
+      if (!state.judged) return state;
+      if (state.board.squares[action.position] !== 'E') {
+        console.warn(state, action);
+        return state;
       }
-      setCalculating(false);
-    });
-  }, [loaded, calculating, board, player])
-
-  if (!loaded) {
-    return <div>Loading...</div>;
+      return {
+        ...state,
+        board: put(state.board, action.position, action.score),
+        judged: false,
+      };
+    case 'judge':
+      if (action.key !== state.key) return state;
+      return {
+        ...state,
+        winner: action.winner,
+        judged: true,
+      };
   }
+}
+
+
+function TicTacToe(): React.ReactElement {
+  const playerMaster = useMemo(() => ['Human', 'AI (Full Exploration)'], []);
+
+  const [calculating, setCalculating, wasm, cancel] = useWorker<ModuleType>(createWorker);
+  const [state, dispatch] = useReducer(reducer, init({X: 0, O: 0}));
+
+  useEffect(() => {
+    if (calculating) return;
+    if (state.winner) return;
+    if (state.judged) {
+      const side = state.board.next;
+      const player = playerMaster[state.player[side]];
+      switch (player) {
+        case 'Human':
+          break;
+        case 'AI (Full Exploration)':
+          const key = state.key;
+          setCalculating(true);
+          wasm.search(state.board.squares, state.board.next)
+            .then((r: SearchResponse) => {
+              if (typeof r.position === 'number') {
+                dispatch({type: 'put', key, side, position: r.position, score: r.score});
+              } else {
+                console.error(r);
+              }
+              setCalculating(false);
+            }).catch((err: any) => console.error(err));
+          break;
+      }
+    } else {
+      setCalculating(true);
+      const key = state.key;
+      wasm.calculateWinner(state.board.squares).then((winner: Winner) => {
+        dispatch({type: 'judge', key, winner});
+        setCalculating(false);
+      }).catch((err: any) => console.error(err));
+    }
+  }, [calculating, playerMaster, state, setCalculating, wasm]);
 
   function handleClick(i: number): void {
-    if (winner !== null) return;
-    if (board.squares[i] !== 'E') return;
-    if (player[board.next] === 0) {
-      setBoard(put(board, i));
+    const side = state.board.next;
+    if (state.player[side] === 0) {
+      dispatch({type: 'put', key: state.key, side, position: i });
     }
   }
 
-  function handlePlayerChange(side: 'X' | 'O', i: number): void {
-    if (player[side] !== i) {
-      setPlayer({
-        ...player,
-        [side]: i,
-      });
-      resetBoard();
+  function handlePlayerChange(side: 'X' | 'O', id: number): void {
+    if (state.player[side] !== id) {
+      cancel();
+      dispatch({type: 'change_player', side, id});
     }
   }
 
   function resetBoard(): void {
-    setBoard(defaultBoard);
+    cancel();
+    dispatch({type: 'reset'});
   }
 
   let status;
-  if (winner === null) {
-    status = `next player: ${board.next}`
-  } else if (winner === 'E') {
+  if (state.winner === null) {
+    status = `next player: ${state.board.next}`
+  } else if (state.winner === 'E') {
     status = 'draw';
   } else {
-    status = `winner: ${winner}`;
+    status = `winner: ${state.winner}`;
   }
 
-  const history = board.history.map((h, i) => {
+  const history = state.board.history.map((h, i) => {
     if (h.score != null) {
       return <li key={i}>{'OX'[i % 2]}: pos={h.position} score={h.score}</li>
     } else {
@@ -163,15 +225,15 @@ function TicTacToe(): React.ReactElement {
       <div className="content is-flex-direction-row">
         X
         <Select
-          items={playerList}
-          selected={player.X}
+          items={playerMaster}
+          selected={state.player.X}
           isDisabled={false}
           onChange={(i) => handlePlayerChange('X', i)}
         />
         vs
         <Select
-          items={playerList}
-          selected={player.O}
+          items={playerMaster}
+          selected={state.player.O}
           isDisabled={false}
           onChange={(i) => handlePlayerChange('O', i)}
         />
@@ -179,7 +241,7 @@ function TicTacToe(): React.ReactElement {
       </div>
       <div className="content">
         <Board
-          squares={board.squares}
+          squares={state.board.squares}
           onClick={handleClick}
         />
       </div>
@@ -187,7 +249,7 @@ function TicTacToe(): React.ReactElement {
         <p>{status}</p>
       </div>
       <div className="content">
-        <ResetButton hasWinner={winner !== null} onClick={resetBoard}/>
+        <ResetButton hasWinner={state.winner !== null} onClick={resetBoard}/>
       </div>
       <div className="content">
         <ol>{history}</ol>

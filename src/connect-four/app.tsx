@@ -10,7 +10,7 @@ import {ModuleType} from './worker';
 function createWorker(): Worker {
   return new Worker('./worker', {
     name: 'connect-four',
-    type: 'module'
+    type: 'module',
   });
 }
 
@@ -116,11 +116,11 @@ type Player =
 type Winner = Side | 'F' | null;
 
 interface ConnectFourState {
-  board: BoardState
-  key: number
-  winner: Winner
-  judged: boolean
-  player: { [P in Side]: number }
+  readonly board: BoardState
+  readonly key: number
+  readonly winner: Winner
+  readonly judged: boolean
+  readonly player: { [P in Side]: number }
 }
 
 type Action =
