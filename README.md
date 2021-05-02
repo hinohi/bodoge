@@ -9,6 +9,7 @@ site: https://hinohi.github.io/bodoge/
 ```
 wasm-pack build tic-tac-toe
 wasm-pack build connect-four
+wasm-pack build mancala
 ```
 
 ```

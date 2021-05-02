@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "connect-four",
+    "mancala",
     "tic-tac-toe",
 ]
 

@@ -125,10 +125,7 @@ function reducer(state: TicTacToeState, action: Action): TicTacToeState {
       if (state.board.next !== action.side) return state;
       if (state.winner) return state;
       if (!state.judged) return state;
-      if (state.board.squares[action.position] !== 'E') {
-        console.warn(state, action);
-        return state;
-      }
+      if (state.board.squares[action.position] !== 'E') return state;
       return {
         ...state,
         board: put(state.board, action.position, action.score),

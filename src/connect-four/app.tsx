@@ -156,10 +156,7 @@ function reducer(state: ConnectFourState, action: Action): ConnectFourState {
       if (state.board.next !== action.side) return state;
       if (state.winner) return state;
       if (!state.judged) return state;
-      if (state.board.cols[action.position].length >= 6) {
-        console.warn(state, action);
-        return state;
-      }
+      if (state.board.cols[action.position].length >= 6) return state;
       return {
         ...state,
         board: put(state.board, action.position, action.score),
