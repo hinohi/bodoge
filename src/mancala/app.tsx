@@ -223,7 +223,31 @@ function Mancala(): React.ReactElement {
     },
     {
       type: 'CPU',
+      params: 'dfs:nn6:3',
+    },
+    {
+      type: 'CPU',
+      params: 'dfs:nn4:3',
+    },
+    {
+      type: 'CPU',
       params: 'dfs:nn6:5',
+    },
+    {
+      type: 'CPU',
+      params: 'dfs:nn4:5',
+    },
+    {
+      type: 'CPU',
+      params: 'dfs:nn6:7',
+    },
+    {
+      type: 'CPU',
+      params: 'dfs:nn6:9',
+    },
+    {
+      type: 'CPU',
+      params: 'random',
     },
   ], []);
 

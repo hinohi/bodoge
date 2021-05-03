@@ -260,12 +260,13 @@ function ConnectFour(): React.ReactElement {
   }
 
   const history = state.board.history.map((h, i) => {
+    const n = `(${i + 1})`;
     if (h.score != null) {
-      return <li key={i}>{'AB'[i % 2]}: pos={h.position} score={h.score}</li>
+      return <li key={i}>{n} {'AB'[i % 2]}: pos={h.position} score={h.score}</li>
     } else {
-      return <li key={i}>{'AB'[i % 2]}: pos={h.position}</li>
+      return <li key={i}>{n} {'AB'[i % 2]}: pos={h.position}</li>
     }
-  });
+  }).reverse();
 
   return (
     <div className="container">
@@ -291,13 +292,12 @@ function ConnectFour(): React.ReactElement {
       </div>
       <div className="content">
         <p>{status}</p>
-        <p>calculating: {calculating ? 't' : 'f'}</p>
       </div>
       <div className="content">
         <ResetButton hasWinner={state.winner !== null} onClick={resetBoard}/>
       </div>
       <div className="content">
-        <ol>{history}</ol>
+        <ul>{history}</ul>
       </div>
     </div>
   );
