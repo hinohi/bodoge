@@ -157,6 +157,7 @@ interface TicTacToeState {
 type Action =
   | { type: 'reset' }
   | { type: 'change_player', side: Side, id: number }
+  | { type: 'change_stealing', stealing: boolean }
   | { type: 'put', key: number, board: BoardState }
   | { type: 'judge', key: number, score: Score }
   ;
@@ -197,6 +198,9 @@ function reducer(state: TicTacToeState, action: Action): TicTacToeState {
     case 'change_player':
       if (state.player[action.side] === action.id) return state;
       return init(state.board.stealing, {...state.player, [action.side]: action.id});
+    case 'change_stealing':
+      if (state.board.stealing === action.stealing) return state;
+      return init(action.stealing, state.player);
     case 'put':
       if (action.key !== state.key) return state;
       if (state.score) return state;
@@ -296,10 +300,16 @@ function Mancala(): React.ReactElement {
   }
 
   function handlePlayerChange(side: Side, id: number): void {
-    if (state.player[side] !== id) {
-      cancel();
-      dispatch({type: 'change_player', side, id});
-    }
+    if (state.player[side] === id) return;
+    cancel();
+    dispatch({type: 'change_player', side, id});
+  }
+
+  function handleStealingChange(value: string): void {
+    const stealing = value !== 'stealing';
+    if (state.board.stealing === stealing) return;
+    cancel();
+    dispatch({type: 'change_stealing', stealing});
   }
 
   function resetBoard(): void {
@@ -323,6 +333,17 @@ function Mancala(): React.ReactElement {
 
   return (
     <div className="container">
+      <div className="content">
+        <label className="checkbox">
+          <input
+            type="checkbox"
+            value={state.board.stealing ? 'stealing' : 'no_stealing'}
+            checked={state.board.stealing}
+            onChange={(e) => handleStealingChange(e.target.value)}
+          />
+          stealing
+        </label>
+      </div>
       <div className="content is-flex-direction-row">
         First
         <Select
