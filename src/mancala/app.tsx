@@ -16,36 +16,66 @@ function createWorker(): Worker {
 
 type Side = 'First' | 'Second';
 
-interface BoardBase {
+interface BoardState {
+  readonly side: Side
+  readonly stealing: boolean
   readonly seeds: ReadonlyArray<ReadonlyArray<number>>
   readonly score: ReadonlyArray<number>
 }
 
-interface BoardState extends BoardBase {
-  readonly stealing: boolean
-  readonly side: Side
-}
-
-interface BoardProps extends BoardBase {
+interface BoardProps extends BoardState {
+  readonly finished: boolean
   readonly onClick: (side: Side, i: number) => void
 }
 
 function Board(props: BoardProps) {
   const size = 100;
+  const mineSeedColor = '#111';
+  const oppSeedColor = '#666';
+  const zeroSeedColor = '#ccc';
+  const sideColors = {
+    First: '#226',
+    Second: '#622',
+  } as const;
+
+  function textColor(target: Side, s: number): string {
+    if (props.finished) {
+      return sideColors[target];
+    }
+    if (props.side === target) {
+      if (s > 0) {
+        return mineSeedColor;
+      } else {
+        return zeroSeedColor;
+      }
+    } else {
+      return oppSeedColor;
+    }
+  }
+
   return (
     <Svg
       width={size * 8}
       height={size * 2}
     >
-      <NumberRect x={0} y={0} width={size} height={size * 1.5} text={`${props.score[1]}`} key="s1"/>
+      <NumberRect
+        x={0}
+        y={0}
+        width={size}
+        height={size * 1.5}
+        text={`${props.score[1]}`}
+        textColor={sideColors.Second}
+        key="s1"
+      />
       {props.seeds[1].map((s, i) => {
         return (
           <NumberRect
-            x={size * (i + 1)}
+            x={size * (6 - i)}
             y={0}
             width={size}
             height={size}
             text={`${s}`}
+            textColor={textColor('Second', s)}
             key={`Second${i}`}
             onClick={() => props.onClick('Second', i)}
           />
@@ -59,12 +89,20 @@ function Board(props: BoardProps) {
             width={size}
             height={size}
             text={`${s}`}
+            textColor={textColor('First', s)}
             key={`First${i}`}
             onClick={() => props.onClick('First', i)}
           />
         );
       })}
-      <NumberRect x={size * 7} y={size * 0.5} width={size} height={size * 1.5} text={`${props.score[0]}`} key="s0"/>
+      <NumberRect
+        x={size * 7}
+        y={size * 0.5}
+        width={size}
+        height={size * 1.5}
+        text={`${props.score[0]}`}
+        textColor={sideColors.First}
+        key="s0"/>
     </Svg>
   );
 }
@@ -75,6 +113,7 @@ interface NumberRectProps {
   readonly width: number
   readonly height: number
   readonly text: string
+  readonly textColor: string
   readonly onClick?: () => void
 }
 
@@ -83,9 +122,10 @@ function NumberRect(props: NumberRectProps) {
   return (
     <>
       <text
-        x={props.x + margin}
-        y={props.y + props.height - margin}
-        fontSize={64}
+        x={props.x + margin * 4}
+        y={props.y + props.height - margin * 4}
+        fontSize="64"
+        fill={props.textColor}
       >
         {props.text}
       </text>
@@ -96,8 +136,8 @@ function NumberRect(props: NumberRectProps) {
         height={props.height - margin * 2}
         rx={margin * 3}
         ry={margin * 3}
-        fill="rgba(0, 0, 0, 0)"
-        stroke="#111111"
+        fill={'rgba(0, 0, 0, 0)'}
+        stroke={'#333'}
         onClick={props.onClick}
       />
     </>
@@ -279,6 +319,7 @@ function Mancala(): React.ReactElement {
       <div className="content">
         <Board
           {...state.board}
+          finished={state.score !== null}
           onClick={handleClick}
         />
       </div>
