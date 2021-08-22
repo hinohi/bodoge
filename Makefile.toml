@@ -1,0 +1,39 @@
+[env]
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
+
+[tasks.format]
+command = "cargo"
+args = ["fmt"]
+
+[tasks.clippy]
+command = "cargo"
+args = ["clippy"]
+
+[tasks.lint]
+dependencies = [
+    "format",
+    "clippy",
+]
+
+[tasks.cargo-test]
+command = "cargo"
+args = ["test"]
+
+[tasks.wasm-test]
+command = "wasm-pack"
+args = ["test", "--node"]
+
+[tasks.test]
+dependencies = [
+    "lint",
+    "cargo-test",
+    "wasm-test"
+]
+
+[tasks.wasm-build]
+command = "wasm-pack"
+args = ["build"]
+
+[tasks.wasm-release-build]
+command = "wasm-pack"
+args = ["build", "--release"]
