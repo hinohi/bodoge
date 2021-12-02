@@ -11,6 +11,7 @@ use crate::mctree::McTreeAI;
 #[wasm_bindgen(js_name = calculateWinner)]
 pub fn js_calculate_winner(board: &JsValue) -> Result<JsValue, JsValue> {
     let board: Board = board.into_serde().map_err(|e| e.to_string())?;
+    let board = BitBoard::from(board);
     let winner = board.calc_winner();
     match winner {
         Some(Side::A) => Ok("A".into()),
@@ -58,6 +59,7 @@ pub fn js_mctree(
     c: f64,
 ) -> Result<JsValue, JsValue> {
     let board: Board = board.into_serde().map_err(|e| e.to_string())?;
+    let board = BitBoard::from(board);
     if board.is_full() {
         return Ok(none_response());
     }

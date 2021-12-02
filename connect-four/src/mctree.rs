@@ -4,7 +4,7 @@ use std::time::Instant;
 
 use rand::{seq::SliceRandom, Rng};
 
-use crate::{Board, Side};
+use crate::{BitBoard, Side};
 
 const WIN_POINT: f64 = 1.0;
 const LOSE_POINT: f64 = 0.0;
@@ -23,7 +23,7 @@ fn choice_with_weight<R: Rng>(rng: &mut R, weight: &[f64]) -> usize {
     weight.len() - 1
 }
 
-fn random_down<R: Rng>(rng: &mut R, board: &Board, side: Side) -> f64 {
+fn random_down<R: Rng>(rng: &mut R, board: &BitBoard, side: Side) -> f64 {
     let mut board = board.clone();
     let mut s = side;
     loop {
@@ -32,8 +32,7 @@ fn random_down<R: Rng>(rng: &mut R, board: &Board, side: Side) -> f64 {
             return DRAW_POINT;
         }
         let col = *can.choose(rng).unwrap();
-        board.put(col, s);
-        if board.is_winner(col) {
+        if board.put(col, s) {
             return if s == side { WIN_POINT } else { LOSE_POINT };
         }
         s = s.flip();
@@ -44,7 +43,7 @@ fn random_down<R: Rng>(rng: &mut R, board: &Board, side: Side) -> f64 {
 struct Node {
     visited_count: u32,
     win_point: f64,
-    board: Board,
+    board: BitBoard,
     result: Option<f64>,
     children: Vec<Node>,
 }
@@ -57,7 +56,7 @@ pub struct McTreeAI<R> {
 }
 
 impl Node {
-    fn new(board: Board, is_lose: bool) -> Node {
+    fn new(board: BitBoard, is_lose: bool) -> Node {
         Node {
             visited_count: 0,
             win_point: 0.0,
@@ -107,8 +106,7 @@ impl<R: Rng> McTreeAI<R> {
             node.children.reserve(can.len());
             for col in can {
                 let mut board = node.board.clone();
-                board.put(col, side);
-                if board.is_winner(col) {
+                if board.put(col, side) {
                     node.result = Some(WIN_POINT);
                     node.children = vec![Node::new(board, true)];
                     node.children[0].visited_count += 1;
@@ -133,7 +131,7 @@ impl<R: Rng> McTreeAI<R> {
         p
     }
 
-    pub fn search(&mut self, board: &Board) -> (usize, f64) {
+    pub fn search(&mut self, board: &BitBoard) -> (usize, f64) {
         let start = Instant::now();
         let side = board.calc_next();
         let mut node = Node::new(board.clone(), false);
@@ -217,7 +215,7 @@ mod tests {
     fn smoke() {
         let rng = Pcg32::new(1, 11634580027462260723);
         let mut ai = McTreeAI::new(rng, 10, 2, 2.0);
-        let mut board = Board::new();
+        let mut board = BitBoard::new();
         let mut side = Side::A;
         while board.calc_winner().is_none() {
             let (pos, f) = ai.search(&board);
