@@ -27,11 +27,11 @@ fn random_down<R: Rng>(rng: &mut R, board: &BitBoard, side: Side) -> f64 {
     let mut board = board.clone();
     let mut s = side;
     loop {
-        let can = (0..7).filter(|&col| board.can_put(col)).collect::<Vec<_>>();
-        if can.is_empty() {
+        if board.is_full() {
             return DRAW_POINT;
         }
-        let col = *can.choose(rng).unwrap();
+        let can = board.list_can_put();
+        let col = *can.choose(rng).expect("no next");
         if board.put(col, s) {
             return if s == side { WIN_POINT } else { LOSE_POINT };
         }
@@ -96,6 +96,10 @@ impl<R: Rng> McTreeAI<R> {
             node.win_point += r;
             return r;
         }
+        if node.board.is_full() {
+            node.win_point = DRAW_POINT;
+            return DRAW_POINT;
+        }
         if node.children.is_empty() {
             if node.visited_count <= self.expansion_threshold {
                 let r = random_down(&mut self.rng, &node.board, side);
@@ -132,6 +136,9 @@ impl<R: Rng> McTreeAI<R> {
     }
 
     pub fn search(&mut self, board: &BitBoard) -> (usize, f64) {
+        if board.is_full() {
+            return (0, 0.0);
+        }
         let start = Instant::now();
         let side = board.calc_next();
         let mut node = Node::new(board.clone(), false);
@@ -155,7 +162,7 @@ impl<R: Rng> McTreeAI<R> {
                     x.visited_count.cmp(&y.visited_count)
                 }
             })
-            .unwrap();
+            .expect("No children");
 
         log(&format!("children={}", node.children.len()));
         for child in node.children.iter() {
@@ -220,7 +227,7 @@ mod tests {
         while board.calc_winner().is_none() {
             let (pos, f) = ai.search(&board);
             assert!(board.can_put(pos));
-            assert!(0.0 <= f && f <= 1.0);
+            assert!((0.0..=1.0).contains(&f));
             board.put(pos, side);
             side = side.flip();
         }

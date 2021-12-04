@@ -269,4 +269,18 @@ mod tests {
         assert_eq!(put(4, B, &mut board), (None, false, false));
         assert_eq!(put(4, A, &mut board), (Some(A), true, false));
     }
+
+    #[test]
+    fn is_full() {
+        let mut board = BitBoard::new();
+        let mut side = Side::A;
+        for col in 0..7 {
+            for _ in 0..6 {
+                assert!(!board.is_full());
+                board.put(col, side);
+                side = side.flip();
+            }
+        }
+        assert!(board.is_full());
+    }
 }
