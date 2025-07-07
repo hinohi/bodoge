@@ -7,7 +7,14 @@ export interface SvgProps {
 
 export function Svg(props: SvgProps & Readonly<{ children?: ReactNode[] }>): ReactElement {
   return (
-    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width={props.width} height={props.height}>
+    <svg
+      version="1.1"
+      xmlns="http://www.w3.org/2000/svg"
+      width={props.width}
+      height={props.height}
+      role="img"
+      aria-label="Board game"
+    >
       {props.children}
     </svg>
   );
@@ -22,6 +29,22 @@ export interface SquareProps {
 
 export function Square(props: SquareProps): ReactElement {
   const margin = props.size / 50;
+  if (props.onClick) {
+    return (
+      <g onClick={props.onClick} style={{ cursor: 'pointer' }}>
+        <rect
+          x={props.x + margin}
+          y={props.y + margin}
+          width={props.size - margin * 2}
+          height={props.size - margin * 2}
+          rx={margin * 3}
+          ry={margin * 3}
+          fill="rgba(0, 0, 0, 0)"
+          stroke="#111111"
+        />
+      </g>
+    );
+  }
   return (
     <rect
       x={props.x + margin}
@@ -32,7 +55,6 @@ export function Square(props: SquareProps): ReactElement {
       ry={margin * 3}
       fill="rgba(0, 0, 0, 0)"
       stroke="#111111"
-      onClick={props.onClick}
     />
   );
 }

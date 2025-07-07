@@ -47,7 +47,7 @@ function Board(props: BoardProps) {
         const cx = x + length / 2;
         const cy = y + length / 2;
         const rect = <Square x={x} y={y} size={length} onClick={() => props.onClick(i)} />;
-        let mark;
+        let mark: React.ReactElement | undefined;
         switch (c) {
           case 'X':
             mark = <Cross centerX={cx} centerY={cy} size={length} />;
@@ -57,7 +57,7 @@ function Board(props: BoardProps) {
             break;
         }
         return (
-          <React.Fragment key={i}>
+          <React.Fragment key={`cell-${i}`}>
             {mark}
             {rect}
           </React.Fragment>
@@ -163,7 +163,7 @@ function TicTacToe(): React.ReactElement {
               }
               setCalculating(false);
             })
-            .catch((err: any) => console.error(err));
+            .catch((err: unknown) => console.error(err));
           break;
         }
       }
@@ -176,7 +176,7 @@ function TicTacToe(): React.ReactElement {
           dispatch({ type: 'judge', key, winner });
           setCalculating(false);
         })
-        .catch((err: any) => console.error(err));
+        .catch((err: unknown) => console.error(err));
     }
   }, [calculating, playerMaster, state, setCalculating, wasm]);
 
@@ -199,7 +199,7 @@ function TicTacToe(): React.ReactElement {
     dispatch({ type: 'reset' });
   }
 
-  let status;
+  let status: string;
   if (state.winner === null) {
     status = `next player: ${state.board.next}`;
   } else if (state.winner === 'E') {
@@ -211,13 +211,13 @@ function TicTacToe(): React.ReactElement {
   const history = state.board.history.map((h, i) => {
     if (h.score != null) {
       return (
-        <li key={i}>
+        <li key={`history-${i}`}>
           {'OX'[i % 2]}: pos={h.position} score={h.score}
         </li>
       );
     } else {
       return (
-        <li key={i}>
+        <li key={`history-${i}`}>
           {'OX'[i % 2]}: pos={h.position}
         </li>
       );

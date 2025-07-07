@@ -14,7 +14,7 @@ export function Select(props: SelectProps) {
         disabled={props.isDisabled}
       >
         {props.items.map((s, i) => (
-          <option key={i} value={i}>
+          <option key={`option-${i}`} value={i}>
             {s}
           </option>
         ))}

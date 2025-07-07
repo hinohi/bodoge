@@ -63,7 +63,7 @@ function Board(props: BoardProps): React.ReactElement {
     <Svg width={cell_size * 7} height={cell_size * 6}>
       {props.cols.map((col, i) => {
         const x = cell_size * i;
-        return <Column col={col} size={cell_size} x={x} onClick={() => props.onClick(i)} key={i} />;
+        return <Column col={col} size={cell_size} x={x} onClick={() => props.onClick(i)} key={`col-${i}`} />;
       })}
     </Svg>
   );
@@ -214,7 +214,7 @@ function ConnectFour(): React.ReactElement {
               }
               setCalculating(false);
             })
-            .catch((err: any) => console.error(err));
+            .catch((err: unknown) => console.error(err));
           break;
         }
       }
@@ -227,7 +227,7 @@ function ConnectFour(): React.ReactElement {
           dispatch({ type: 'judge', key, winner });
           setCalculating(false);
         })
-        .catch((err: any) => console.error(err));
+        .catch((err: unknown) => console.error(err));
     }
   }, [calculating, playerMaster, state, setCalculating, wasm]);
 
@@ -251,7 +251,7 @@ function ConnectFour(): React.ReactElement {
     dispatch({ type: 'reset' });
   }
 
-  let status;
+  let status: string;
   if (state.winner === null) {
     status = `next player: ${state.board.next}`;
   } else if (state.winner === 'F') {
@@ -265,13 +265,13 @@ function ConnectFour(): React.ReactElement {
       const n = `(${i + 1})`;
       if (h.score != null) {
         return (
-          <li key={i}>
+          <li key={`history-${i}`}>
             {n} {'AB'[i % 2]}: pos={h.position} score={h.score}
           </li>
         );
       } else {
         return (
-          <li key={i}>
+          <li key={`history-${i}`}>
             {n} {'AB'[i % 2]}: pos={h.position}
           </li>
         );

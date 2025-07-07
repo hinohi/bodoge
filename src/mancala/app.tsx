@@ -72,7 +72,7 @@ function Board(props: BoardProps) {
             height={size}
             text={`${s}`}
             textColor={textColor('Second', s)}
-            key={`Second${i}`}
+            key={`second-pit-${i}`}
             onClick={() => props.onClick('Second', i)}
           />
         );
@@ -86,7 +86,7 @@ function Board(props: BoardProps) {
             height={size}
             text={`${s}`}
             textColor={textColor('First', s)}
-            key={`First${i}`}
+            key={`first-pit-${i}`}
             onClick={() => props.onClick('First', i)}
           />
         );
@@ -116,22 +116,38 @@ interface NumberRectProps {
 
 function NumberRect(props: NumberRectProps) {
   const margin = props.width / 50;
+  const rectElement = (
+    <rect
+      x={props.x + margin}
+      y={props.y + margin}
+      width={props.width - margin * 2}
+      height={props.height - margin * 2}
+      rx={margin * 3}
+      ry={margin * 3}
+      fill={'rgba(0, 0, 0, 0)'}
+      stroke={'#333'}
+    />
+  );
+
+  const textElement = (
+    <text x={props.x + margin * 4} y={props.y + props.height - margin * 4} fontSize="64" fill={props.textColor}>
+      {props.text}
+    </text>
+  );
+
+  if (props.onClick) {
+    return (
+      <g onClick={props.onClick} style={{ cursor: 'pointer' }}>
+        {textElement}
+        {rectElement}
+      </g>
+    );
+  }
+
   return (
     <>
-      <text x={props.x + margin * 4} y={props.y + props.height - margin * 4} fontSize="64" fill={props.textColor}>
-        {props.text}
-      </text>
-      <rect
-        x={props.x + margin}
-        y={props.y + margin}
-        width={props.width - margin * 2}
-        height={props.height - margin * 2}
-        rx={margin * 3}
-        ry={margin * 3}
-        fill={'rgba(0, 0, 0, 0)'}
-        stroke={'#333'}
-        onClick={props.onClick}
-      />
+      {textElement}
+      {rectElement}
     </>
   );
 }
@@ -270,7 +286,7 @@ function Mancala(): React.ReactElement {
               dispatch({ type: 'put', key, board });
               setCalculating(false);
             })
-            .catch((err: any) => console.error(err));
+            .catch((err: unknown) => console.error(err));
           break;
         }
       }
@@ -283,7 +299,7 @@ function Mancala(): React.ReactElement {
           dispatch({ type: 'judge', key, score });
           setCalculating(false);
         })
-        .catch((err: any) => console.error(err));
+        .catch((err: unknown) => console.error(err));
     }
   }, [calculating, playerMaster, state, setCalculating, wasm]);
 
@@ -298,7 +314,7 @@ function Mancala(): React.ReactElement {
           dispatch({ type: 'put', key, board });
           setCalculating(false);
         })
-        .catch((err: any) => console.error(err));
+        .catch((err: unknown) => console.error(err));
     }
   }
 
@@ -320,7 +336,7 @@ function Mancala(): React.ReactElement {
     dispatch({ type: 'reset' });
   }
 
-  let status;
+  let status: string;
   if (state.score === null) {
     status = `next player: ${state.board.side} side`;
   } else {
