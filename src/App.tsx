@@ -1,11 +1,6 @@
 import 'bulma/css/bulma.css';
-import React, {Suspense} from 'react';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link,
-} from 'react-router-dom';
+import React, { Suspense } from 'react';
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 
 const TicTacToe = React.lazy(() => import('./tic-tac-toe/app'));
 const ConnectFour = React.lazy(() => import('./connect-four/app'));
@@ -13,7 +8,7 @@ const Mancala = React.lazy(() => import('./mancala/app'));
 
 function App() {
   return (
-    <Router basename="/bodoge">
+    <BrowserRouter basename="/bodoge">
       <div>
         <nav className="navbar">
           <div className="navbar-menu">
@@ -31,28 +26,35 @@ function App() {
             </Link>
           </div>
         </nav>
-        <Switch>
-          <Route path="/tic-tac-toe">
-            <Suspense fallback={<div>Loading Tic Tac Toe...</div>}>
-              <TicTacToe/>
-            </Suspense>
-          </Route>
-          <Route path="/connect-four">
-            <Suspense fallback={<div>Loading Connect Four...</div>}>
-              <ConnectFour/>
-            </Suspense>
-          </Route>
-          <Route path="/mancala">
-            <Suspense fallback={<div>Loading Mancala...</div>}>
-              <Mancala/>
-            </Suspense>
-          </Route>
-          <Route path="/">
-            <Home/>
-          </Route>
-        </Switch>
+        <Routes>
+          <Route
+            path="/tic-tac-toe"
+            element={
+              <Suspense fallback={<div>Loading Tic Tac Toe...</div>}>
+                <TicTacToe />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/connect-four"
+            element={
+              <Suspense fallback={<div>Loading Connect Four...</div>}>
+                <ConnectFour />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/mancala"
+            element={
+              <Suspense fallback={<div>Loading Mancala...</div>}>
+                <Mancala />
+              </Suspense>
+            }
+          />
+          <Route path="/" element={<Home />} />
+        </Routes>
       </div>
-    </Router>
+    </BrowserRouter>
   );
 }
 
@@ -63,12 +65,13 @@ function Home() {
         <div className="container">
           <div className="content">
             <h1>Bodoge!（ボドゲ！）</h1>
+            <p>Play some board games with the game AI provided by WASM.</p>
             <p>
-              Play some board games with the game AI provided by WASM.
-            </p>
-            <p>
-              Source code is available {" "}
-              <a href="https://github.com/hinohi/bodoge" target="_blank" rel="noreferrer">here</a>.
+              Source code is available{' '}
+              <a href="https://github.com/hinohi/bodoge" target="_blank" rel="noreferrer">
+                here
+              </a>
+              .
             </p>
           </div>
         </div>

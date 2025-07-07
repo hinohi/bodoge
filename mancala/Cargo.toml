@@ -10,9 +10,10 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
-js-sys = "0.3"
+wasm-bindgen = { version = "0.2.100", features = ["serde-serialize"] }
+js-sys = "0.3.77"
 getrandom = { version = "0.2", features = ["js"] }
+serde-wasm-bindgen = "0.6"
 
 [dependencies.mancala-rust]
 git = "https://github.com/hinohi/rust-mancala.git"
@@ -21,4 +22,4 @@ default-features = false
 features = ["serde-1"]
 
 [dev-dependencies]
-wasm-bindgen-test = "0.3"
+wasm-bindgen-test = "0.3.50"

@@ -1,28 +1,23 @@
-import React, {ReactElement, ReactNode} from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 export interface SvgProps {
-  readonly width: number
-  readonly height: number
+  readonly width: number;
+  readonly height: number;
 }
 
 export function Svg(props: SvgProps & Readonly<{ children?: ReactNode[] }>): ReactElement {
   return (
-    <svg
-      version="1.1"
-      xmlns="http://www.w3.org/2000/svg"
-      width={props.width}
-      height={props.height}
-    >
+    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width={props.width} height={props.height}>
       {props.children}
     </svg>
   );
 }
 
 export interface SquareProps {
-  readonly x: number
-  readonly y: number
-  readonly size: number
-  readonly onClick?: () => void
+  readonly x: number;
+  readonly y: number;
+  readonly size: number;
+  readonly onClick?: () => void;
 }
 
 export function Square(props: SquareProps): ReactElement {
@@ -43,33 +38,18 @@ export function Square(props: SquareProps): ReactElement {
 }
 
 export interface CellMarkProps {
-  readonly centerX: number
-  readonly centerY: number
-  readonly size: number
+  readonly centerX: number;
+  readonly centerY: number;
+  readonly size: number;
 }
 
 export function Cross(props: CellMarkProps): ReactElement {
   const a = props.size * 0.9;
   const b = props.size * 0.1;
   return (
-    <g
-      fill="#53B0FF"
-      transform={`rotate(45 ${props.centerX} ${props.centerY})`}
-    >
-      <rect
-        x={props.centerX - a / 2}
-        y={props.centerY - b / 2}
-        rx={b / 2}
-        width={a}
-        height={b}
-      />
-      <rect
-        x={props.centerX - b / 2}
-        y={props.centerY - a / 2}
-        ry={b / 2}
-        width={b}
-        height={a}
-      />
+    <g fill="#53B0FF" transform={`rotate(45 ${props.centerX} ${props.centerY})`}>
+      <rect x={props.centerX - a / 2} y={props.centerY - b / 2} rx={b / 2} width={a} height={b} />
+      <rect x={props.centerX - b / 2} y={props.centerY - a / 2} ry={b / 2} width={b} height={a} />
     </g>
   );
 }

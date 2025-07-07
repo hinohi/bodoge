@@ -1,10 +1,8 @@
-import React from "react";
-
 interface SelectProps {
-  readonly items: ReadonlyArray<string>
-  readonly isDisabled: boolean
-  readonly selected: number
-  readonly onChange: (i: number) => void
+  readonly items: ReadonlyArray<string>;
+  readonly isDisabled: boolean;
+  readonly selected: number;
+  readonly onChange: (i: number) => void;
 }
 
 export function Select(props: SelectProps) {
@@ -22,5 +20,5 @@ export function Select(props: SelectProps) {
         ))}
       </select>
     </div>
-  )
+  );
 }

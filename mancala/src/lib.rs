@@ -1,8 +1,9 @@
 use mancala_rust::{build_ai, Board};
+use serde_wasm_bindgen::{from_value, to_value};
 use wasm_bindgen::prelude::*;
 
-fn parse_board(board: &JsValue) -> Result<Board, String> {
-    board.into_serde().map_err(|e| e.to_string())
+fn parse_board(board: &JsValue) -> Result<Board, JsValue> {
+    from_value(board.clone())
 }
 
 fn calculate_score(board: &Board) -> Option<(u8, u8)> {
@@ -17,7 +18,7 @@ fn calculate_score(board: &Board) -> Option<(u8, u8)> {
 pub fn js_calculate_score(board: &JsValue) -> Result<JsValue, JsValue> {
     let board = parse_board(board)?;
     let scores = calculate_score(&board);
-    JsValue::from_serde(&scores).map_err(|e| e.to_string().into())
+    Ok(to_value(&scores)?)
 }
 
 fn calculate_moved(board: &Board, pos: &[usize]) -> Result<Board, String> {
@@ -32,8 +33,8 @@ fn calculate_moved(board: &Board, pos: &[usize]) -> Result<Board, String> {
 #[wasm_bindgen(js_name = calculateMoved)]
 pub fn js_calculate_moved(board: &JsValue, pos: u32) -> Result<JsValue, JsValue> {
     let board = parse_board(board)?;
-    let board = calculate_moved(&board, &[pos as usize])?;
-    JsValue::from_serde(&board).map_err(|e| e.to_string().into())
+    let board = calculate_moved(&board, &[pos as usize]).map_err(|e| JsValue::from_str(&e))?;
+    Ok(to_value(&board)?)
 }
 
 fn search(board: &Board, searcher: &str) -> Result<Board, String> {
@@ -45,8 +46,8 @@ fn search(board: &Board, searcher: &str) -> Result<Board, String> {
 #[wasm_bindgen(js_name = search)]
 pub fn js_search(board: &JsValue, searcher: &str) -> Result<JsValue, JsValue> {
     let board = parse_board(board)?;
-    let board = search(&board, searcher)?;
-    JsValue::from_serde(&board).map_err(|e| e.to_string().into())
+    let board = search(&board, searcher).map_err(|e| JsValue::from_str(&e))?;
+    Ok(to_value(&board)?)
 }
 
 #[cfg(target_arch = "wasm32")]

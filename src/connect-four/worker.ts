@@ -1,6 +1,6 @@
 import * as Comlink from 'comlink';
 
-const wasmImport = import('crate-connect-four')
+const wasmImport = import('crate-connect-four');
 
 const wasmModule = {
   async initialize() {

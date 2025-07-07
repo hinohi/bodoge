@@ -1,5 +1,6 @@
 use rand::{rngs::SmallRng, seq::SliceRandom, Rng, SeedableRng};
 use serde::{Deserialize, Serialize};
+use serde_wasm_bindgen::{from_value, to_value};
 use wasm_bindgen::prelude::*;
 
 use CellType::*;
@@ -46,9 +47,9 @@ pub fn calculate_winner(board: &[CellType; 9]) -> Option<CellType> {
 
 #[wasm_bindgen(js_name = calculateWinner)]
 pub fn js_calculate_winner(board: &JsValue) -> Result<JsValue, JsValue> {
-    let board = board.into_serde().map_err(|e| e.to_string())?;
+    let board = from_value(board.clone())?;
     let winner = calculate_winner(&board);
-    JsValue::from_serde(&winner).map_err(|e| e.to_string().into())
+    Ok(to_value(&winner)?)
 }
 
 #[derive(Debug, Serialize)]
@@ -122,9 +123,9 @@ pub fn search(board: &[CellType; 9], next: CellType) -> SearchResponse {
 
 #[wasm_bindgen(js_name = search)]
 pub fn js_search(board: &JsValue, next: &str) -> Result<JsValue, JsValue> {
-    let board = board.into_serde().map_err(|e| e.to_string())?;
+    let board = from_value(board.clone())?;
     let next = if next == "X" { X } else { O };
-    JsValue::from_serde(&search(&board, next)).map_err(|e| e.to_string().into())
+    Ok(to_value(&search(&board, next))?)
 }
 
 #[cfg(test)]

@@ -3,6 +3,7 @@ mod mctree;
 
 use rand::{rngs::SmallRng, SeedableRng};
 use serde::Serialize;
+use serde_wasm_bindgen::{from_value, to_value};
 use wasm_bindgen::prelude::*;
 
 pub use crate::board::*;
@@ -10,7 +11,7 @@ use crate::mctree::McTreeAI;
 
 #[wasm_bindgen(js_name = calculateWinner)]
 pub fn js_calculate_winner(board: &JsValue) -> Result<JsValue, JsValue> {
-    let board: Board = board.into_serde().map_err(|e| e.to_string())?;
+    let board: Board = from_value(board.clone())?;
     let board = BitBoard::from(board);
     let winner = board.calc_winner();
     match winner {
@@ -33,7 +34,7 @@ pub struct SearchResponse {
 }
 
 fn none_response() -> JsValue {
-    JsValue::from_serde(&SearchResponse {
+    to_value(&SearchResponse {
         position: None,
         score: "".to_owned(),
     })
@@ -58,7 +59,7 @@ pub fn js_mctree(
     expansion_threshold: u32,
     c: f64,
 ) -> Result<JsValue, JsValue> {
-    let board: Board = board.into_serde().map_err(|e| e.to_string())?;
+    let board: Board = from_value(board.clone())?;
     let board = BitBoard::from(board);
     if board.is_full() {
         return Ok(none_response());
@@ -68,11 +69,10 @@ pub fn js_mctree(
     if !board.can_put(position) {
         return Ok(none_response());
     }
-    JsValue::from_serde(&SearchResponse {
+    Ok(to_value(&SearchResponse {
         position: Some(position as u32),
         score: score.to_string(),
-    })
-    .map_err(|e| e.to_string().into())
+    })?)
 }
 
 #[cfg(target_arch = "wasm32")]

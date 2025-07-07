@@ -22,7 +22,7 @@ Bodoge! (ボドゲ！) is a web-based board game application that implements Tic
 
 2. **Start development server**:
    ```bash
-   npm run start
+   npm run dev
    ```
 
 ### Testing
@@ -44,11 +44,18 @@ npm run test
 
 ### Code Quality
 
-Using cargo-make (recommended):
+**Rust** - Using cargo-make (recommended):
 ```bash
 cargo make lint     # Runs format + clippy
 cargo make format   # Format Rust code
 cargo make clippy   # Run Rust linter
+```
+
+**JavaScript/TypeScript** - Using Biome v2:
+```bash
+npm run lint        # Check for issues
+npm run lint:fix    # Fix issues automatically
+npm run format      # Format code
 ```
 
 ### Production Build & Deploy
@@ -109,5 +116,8 @@ Each game follows this structure:
 - Always build WASM packages before running the frontend
 - The project uses a Rust workspace with three member crates
 - Web Workers prevent UI blocking during AI calculations
-- Custom webpack configuration (`config-overrides.js`) handles WASM files
+- Vite configuration (`vite.config.ts`) handles WASM files with vite-plugin-wasm
 - Each WASM package is referenced as a local file dependency in `package.json`
+- Build tool: Vite (migrated from Create React App)
+- Linter: Biome v2 (migrated from ESLint)
+- Build output is in `dist/` instead of `build/`

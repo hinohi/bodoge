@@ -1,11 +1,13 @@
-import {useEffect, useMemo, useState} from 'react';
-import {wrap, Remote} from 'comlink';
+import { type Remote, wrap } from 'comlink';
+import { useEffect, useMemo, useState } from 'react';
 
 interface ModuleType {
   initialize(): Promise<void>;
 }
 
-export function useWorker<T extends ModuleType>(createWorker: () => Worker): [boolean, (calculating: boolean) => void, Remote<T>, () => void] {
+export function useWorker<T extends ModuleType>(
+  createWorker: () => Worker,
+): [boolean, (calculating: boolean) => void, Remote<T>, () => void] {
   const [worker, setWorker] = useState(createWorker);
   const proxy = useMemo(() => wrap<T>(worker), [worker]);
   const [initialized, setInitialize] = useState(false);
@@ -17,7 +19,7 @@ export function useWorker<T extends ModuleType>(createWorker: () => Worker): [bo
       setInitialize(true);
       setCalculating(false);
     });
-  }, [initialized, calculating, proxy]);
+  }, [initialized, proxy]);
 
   function cancel(): void {
     worker.terminate();
