@@ -3,7 +3,7 @@ use serde_wasm_bindgen::{from_value, to_value};
 use wasm_bindgen::prelude::*;
 
 fn parse_board(board: &JsValue) -> Result<Board, JsValue> {
-    from_value(board.clone())
+    from_value(board.clone()).map_err(|e| JsValue::from_str(&e.to_string()))
 }
 
 fn calculate_score(board: &Board) -> Option<(u8, u8)> {

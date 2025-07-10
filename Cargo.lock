@@ -84,9 +84,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "26145e563e54f2cadc477553f1ec5ee650b00862f0a58bcd12cbdc5f0ea2d2f4"
 dependencies = [
  "cfg-if",
+ "js-sys",
  "libc",
  "r-efi",
  "wasi 0.14.2+wasi-0.2.4",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -142,7 +144,7 @@ checksum = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94"
 name = "mancala"
 version = "0.1.0"
 dependencies = [
- "getrandom 0.2.16",
+ "getrandom 0.3.3",
  "js-sys",
  "mancala-rust",
  "serde-wasm-bindgen",
@@ -152,15 +154,15 @@ dependencies = [
 
 [[package]]
 name = "mancala-rust"
-version = "0.2.0"
-source = "git+https://github.com/hinohi/rust-mancala.git#01f7a168ec7d98a488601e975177977766406960"
+version = "0.2.1"
+source = "git+https://github.com/hinohi/rust-mancala.git#f9a975b554370876b3ff050547a67b0eebea6f84"
 dependencies = [
  "fnv",
  "instant",
  "lazy_static",
- "ndarray 0.15.6",
- "rand 0.8.5",
- "rand_pcg 0.3.1",
+ "ndarray",
+ "rand 0.9.1",
+ "rand_pcg 0.9.0",
  "rust-nn",
  "serde",
 ]
@@ -189,20 +191,6 @@ checksum = "f27fe9f1cc3c22e1687f9446c2083c4c5fc7f0bcf1c7a86bdbded14985895b4b"
 dependencies = [
  "cc",
  "walkdir",
-]
-
-[[package]]
-name = "ndarray"
-version = "0.15.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "adb12d4e967ec485a5f71c6311fe28158e9d6f4bc4a447b474184d0f91a8fa32"
-dependencies = [
- "matrixmultiply",
- "num-complex",
- "num-integer",
- "num-traits",
- "rawpointer",
- "serde",
 ]
 
 [[package]]
@@ -426,11 +414,11 @@ dependencies = [
 
 [[package]]
 name = "rust-nn"
-version = "0.1.0"
-source = "git+https://github.com/hinohi/rust-nn#174666922a9a60f3656e9b98c4df54fc71d082a0"
+version = "0.1.1"
+source = "git+https://github.com/hinohi/rust-nn#9f08e69dcb0880c87cf8ff960f6a764543760be6"
 dependencies = [
- "ndarray 0.16.1",
- "rand 0.8.5",
+ "ndarray",
+ "rand 0.9.1",
  "rand_distr",
  "rand_pcg 0.9.0",
  "rmp-serde",
@@ -522,6 +510,7 @@ dependencies = [
 name = "tic-tac-toe"
 version = "0.1.0"
 dependencies = [
+ "getrandom 0.2.16",
  "js-sys",
  "rand 0.8.5",
  "serde",

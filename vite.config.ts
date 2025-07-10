@@ -19,6 +19,7 @@ export default defineConfig({
       'crate-tic-tac-toe': '/tic-tac-toe/pkg',
       'crate-connect-four': '/connect-four/pkg',
       'crate-mancala': '/mancala/pkg',
+      'env': '/src/env.js',
     },
   },
 });
