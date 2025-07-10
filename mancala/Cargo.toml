@@ -12,8 +12,10 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 js-sys = "0.3"
-getrandom = { version = "0.3", features = ["wasm_js"] }
 serde-wasm-bindgen = "0.6"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.3", features = ["wasm_js"] }
 
 [dependencies.mancala-rust]
 git = "https://github.com/hinohi/rust-mancala.git"

@@ -1,4 +1,4 @@
-use mancala_rust::{build_ai, Board};
+use mancala_rust::{Board, build_ai};
 use serde_wasm_bindgen::{from_value, to_value};
 use wasm_bindgen::prelude::*;
 
@@ -50,11 +50,30 @@ pub fn js_search(board: &JsValue, searcher: &str) -> Result<JsValue, JsValue> {
     Ok(to_value(&board)?)
 }
 
-#[cfg(target_arch = "wasm32")]
 #[cfg(test)]
 mod tests {
     use super::*;
+    use mancala_rust::Board;
+
+    #[test]
+    fn test_calculate_score() {
+        // Test unfinished game
+        let board = Board::new(true);
+        assert_eq!(calculate_score(&board), None);
+
+        // Test parse_board function with a simple board
+        // Note: We can't test the JS functions directly in regular tests
+        // as they require wasm-bindgen runtime
+    }
+}
+
+#[cfg(all(target_arch = "wasm32", test))]
+mod wasm_tests {
+    use super::*;
     use wasm_bindgen_test::*;
+
+    // Configure tests to run in browser
+    wasm_bindgen_test_configure!(run_in_browser);
 
     #[wasm_bindgen_test]
     fn test_js_calculate_score() {
@@ -69,14 +88,16 @@ mod tests {
         .unwrap();
         assert_eq!(js_calculate_score(&board), Ok(JsValue::NULL));
 
-        assert!(js_sys::JSON::parse(
-            r#"{
+        assert!(
+            js_sys::JSON::parse(
+                r#"{
             "side": "First",
             "stealing": true,
             "seeds": [[0, 0, 0, 0, 0, 0], [4, 4, 4, 4, 4, 4]],
             "score": [12, 12]
         }"#,
-        )
-        .is_ok());
+            )
+            .is_ok()
+        );
     }
 }
