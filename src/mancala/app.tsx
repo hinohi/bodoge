@@ -1,8 +1,8 @@
 import type React from 'react';
 import { useEffect, useMemo, useReducer } from 'react';
-import { ResetButton } from '../button';
-import { PlayerSelection } from '../PlayerSelection';
-import { Svg } from '../svg';
+import { ResetButton } from '../components/common/ResetButton';
+import { PlayerSelection } from '../components/common/PlayerSelection';
+import { Svg } from '../components/common/Svg';
 import { useWorker } from '../workerHook';
 import type { ModuleType } from './worker';
 
@@ -368,7 +368,7 @@ function Mancala(): React.ReactElement {
           playerLabels={['First', 'Second']}
           playerOptions={playerMaster.map(showPlayer)}
           selectedPlayers={[state.player.First, state.player.Second]}
-          onPlayerChange={(playerIndex, optionIndex) => {
+          onPlayerChange={(playerIndex: 0 | 1, optionIndex: number) => {
             const side = playerIndex === 0 ? 'First' : 'Second';
             handlePlayerChange(side, optionIndex);
           }}

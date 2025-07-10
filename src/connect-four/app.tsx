@@ -1,8 +1,8 @@
 import type React from 'react';
 import { useEffect, useMemo, useReducer } from 'react';
-import { ResetButton } from '../button';
-import { PlayerSelection } from '../PlayerSelection';
-import { Circle, Cross, Square, Svg } from '../svg';
+import { ResetButton } from '../components/common/ResetButton';
+import { PlayerSelection } from '../components/common/PlayerSelection';
+import { Circle, Cross, Square, Svg } from '../components/common/Svg';
 import { useWorker } from '../workerHook';
 import type { ModuleType } from './worker';
 
@@ -286,7 +286,7 @@ function ConnectFour(): React.ReactElement {
           playerLabels={['X', 'O']}
           playerOptions={playerMaster.map((p) => p.name)}
           selectedPlayers={[state.player.A, state.player.B]}
-          onPlayerChange={(playerIndex, optionIndex) => {
+          onPlayerChange={(playerIndex: 0 | 1, optionIndex: number) => {
             const side = playerIndex === 0 ? 'A' : 'B';
             handlePlayerChange(side, optionIndex);
           }}

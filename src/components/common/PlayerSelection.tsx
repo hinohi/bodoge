@@ -1,4 +1,4 @@
-import { Select } from './select';
+import { Select } from './Select';
 
 interface PlayerSelectionProps {
   readonly playerLabels: [string, string];
