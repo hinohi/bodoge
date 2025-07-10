@@ -1,14 +1,13 @@
-import React, {useEffect, useMemo, useReducer} from 'react';
-
-import {Svg} from '../svg';
-import {ResetButton} from '../button';
-import {Select} from '../select';
-import {useWorker} from '../workerHook';
-import {ModuleType} from './worker';
-
+import type React from 'react';
+import { useEffect, useMemo, useReducer } from 'react';
+import { PlayerSelection } from '../components/common/PlayerSelection';
+import { ResetButton } from '../components/common/ResetButton';
+import { Svg } from '../components/common/Svg';
+import { useWorker } from '../workerHook';
+import type { ModuleType } from './worker';
 
 function createWorker(): Worker {
-  return new Worker('./worker', {
+  return new Worker(new URL('./worker', import.meta.url), {
     name: 'mancala',
     type: 'module',
   });
@@ -17,15 +16,15 @@ function createWorker(): Worker {
 type Side = 'First' | 'Second';
 
 interface BoardState {
-  readonly side: Side
-  readonly stealing: boolean
-  readonly seeds: ReadonlyArray<ReadonlyArray<number>>
-  readonly score: ReadonlyArray<number>
+  readonly side: Side;
+  readonly stealing: boolean;
+  readonly seeds: ReadonlyArray<ReadonlyArray<number>>;
+  readonly score: ReadonlyArray<number>;
 }
 
 interface BoardProps extends BoardState {
-  readonly finished: boolean
-  readonly onClick: (side: Side, i: number) => void
+  readonly finished: boolean;
+  readonly onClick: (side: Side, i: number) => void;
 }
 
 function Board(props: BoardProps) {
@@ -54,10 +53,7 @@ function Board(props: BoardProps) {
   }
 
   return (
-    <Svg
-      width={size * 8}
-      height={size * 2}
-    >
+    <Svg width={size * 8} height={size * 2}>
       <NumberRect
         x={0}
         y={0}
@@ -76,7 +72,7 @@ function Board(props: BoardProps) {
             height={size}
             text={`${s}`}
             textColor={textColor('Second', s)}
-            key={`Second${i}`}
+            key={`second-pit-${i}`}
             onClick={() => props.onClick('Second', i)}
           />
         );
@@ -90,7 +86,7 @@ function Board(props: BoardProps) {
             height={size}
             text={`${s}`}
             textColor={textColor('First', s)}
-            key={`First${i}`}
+            key={`first-pit-${i}`}
             onClick={() => props.onClick('First', i)}
           />
         );
@@ -102,44 +98,56 @@ function Board(props: BoardProps) {
         height={size * 1.5}
         text={`${props.score[0]}`}
         textColor={sideColors.First}
-        key="s0"/>
+        key="s0"
+      />
     </Svg>
   );
 }
 
 interface NumberRectProps {
-  readonly x: number
-  readonly y: number
-  readonly width: number
-  readonly height: number
-  readonly text: string
-  readonly textColor: string
-  readonly onClick?: () => void
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+  readonly text: string;
+  readonly textColor: string;
+  readonly onClick?: () => void;
 }
 
 function NumberRect(props: NumberRectProps) {
   const margin = props.width / 50;
+  const rectElement = (
+    <rect
+      x={props.x + margin}
+      y={props.y + margin}
+      width={props.width - margin * 2}
+      height={props.height - margin * 2}
+      rx={margin * 3}
+      ry={margin * 3}
+      fill={'rgba(0, 0, 0, 0)'}
+      stroke={'#333'}
+    />
+  );
+
+  const textElement = (
+    <text x={props.x + margin * 4} y={props.y + props.height - margin * 4} fontSize="64" fill={props.textColor}>
+      {props.text}
+    </text>
+  );
+
+  if (props.onClick) {
+    return (
+      <g onClick={props.onClick} style={{ cursor: 'pointer' }}>
+        {textElement}
+        {rectElement}
+      </g>
+    );
+  }
+
   return (
     <>
-      <text
-        x={props.x + margin * 4}
-        y={props.y + props.height - margin * 4}
-        fontSize="64"
-        fill={props.textColor}
-      >
-        {props.text}
-      </text>
-      <rect
-        x={props.x + margin}
-        y={props.y + margin}
-        width={props.width - margin * 2}
-        height={props.height - margin * 2}
-        rx={margin * 3}
-        ry={margin * 3}
-        fill={'rgba(0, 0, 0, 0)'}
-        stroke={'#333'}
-        onClick={props.onClick}
-      />
+      {textElement}
+      {rectElement}
     </>
   );
 }
@@ -147,25 +155,21 @@ function NumberRect(props: NumberRectProps) {
 type Score = [number, number] | null;
 
 interface TicTacToeState {
-  readonly board: BoardState
-  readonly key: number
-  readonly score: Score
-  readonly judged: boolean
-  readonly player: { [P in Side]: number }
+  readonly board: BoardState;
+  readonly key: number;
+  readonly score: Score;
+  readonly judged: boolean;
+  readonly player: { [P in Side]: number };
 }
 
 type Action =
   | { type: 'reset' }
-  | { type: 'change_player', side: Side, id: number }
-  | { type: 'change_stealing', stealing: boolean }
-  | { type: 'put', key: number, board: BoardState }
-  | { type: 'judge', key: number, score: Score }
-  ;
+  | { type: 'change_player'; side: Side; id: number }
+  | { type: 'change_stealing'; stealing: boolean }
+  | { type: 'put'; key: number; board: BoardState }
+  | { type: 'judge'; key: number; score: Score };
 
-type Player =
-  | { type: 'Human' }
-  | { type: 'CPU', params: string }
-  ;
+type Player = { type: 'Human' } | { type: 'CPU'; params: string };
 
 function showPlayer(player: Player): string {
   switch (player.type) {
@@ -181,7 +185,10 @@ function init(stealing: boolean, player: { [P in Side]: number }): TicTacToeStat
     board: {
       stealing,
       side: 'First',
-      seeds: [[4, 4, 4, 4, 4, 4], [4, 4, 4, 4, 4, 4]],
+      seeds: [
+        [4, 4, 4, 4, 4, 4],
+        [4, 4, 4, 4, 4, 4],
+      ],
       score: [0, 0],
     },
     key: Math.random(),
@@ -197,7 +204,7 @@ function reducer(state: TicTacToeState, action: Action): TicTacToeState {
       return init(state.board.stealing, state.player);
     case 'change_player':
       if (state.player[action.side] === action.id) return state;
-      return init(state.board.stealing, {...state.player, [action.side]: action.id});
+      return init(state.board.stealing, { ...state.player, [action.side]: action.id });
     case 'change_stealing':
       if (state.board.stealing === action.stealing) return state;
       return init(action.stealing, state.player);
@@ -221,42 +228,45 @@ function reducer(state: TicTacToeState, action: Action): TicTacToeState {
 }
 
 function Mancala(): React.ReactElement {
-  const playerMaster = useMemo<ReadonlyArray<Player>>(() => [
-    {
-      type: 'Human',
-    },
-    {
-      type: 'CPU',
-      params: 'dfs:nn6:3',
-    },
-    {
-      type: 'CPU',
-      params: 'dfs:nn4:3',
-    },
-    {
-      type: 'CPU',
-      params: 'dfs:nn6:5',
-    },
-    {
-      type: 'CPU',
-      params: 'dfs:nn4:5',
-    },
-    {
-      type: 'CPU',
-      params: 'dfs:nn6:7',
-    },
-    {
-      type: 'CPU',
-      params: 'dfs:nn6:9',
-    },
-    {
-      type: 'CPU',
-      params: 'random',
-    },
-  ], []);
+  const playerMaster = useMemo<ReadonlyArray<Player>>(
+    () => [
+      {
+        type: 'Human',
+      },
+      {
+        type: 'CPU',
+        params: 'dfs:nn6:3',
+      },
+      {
+        type: 'CPU',
+        params: 'dfs:nn4:3',
+      },
+      {
+        type: 'CPU',
+        params: 'dfs:nn6:5',
+      },
+      {
+        type: 'CPU',
+        params: 'dfs:nn4:5',
+      },
+      {
+        type: 'CPU',
+        params: 'dfs:nn6:7',
+      },
+      {
+        type: 'CPU',
+        params: 'dfs:nn6:9',
+      },
+      {
+        type: 'CPU',
+        params: 'random',
+      },
+    ],
+    [],
+  );
 
   const [calculating, setCalculating, wasm, cancel] = useWorker<ModuleType>(createWorker);
-  const [state, dispatch] = useReducer(reducer, init(true, {First: 0, Second: 0}));
+  const [state, dispatch] = useReducer(reducer, init(true, { First: 0, Second: 0 }));
 
   useEffect(() => {
     if (calculating) return;
@@ -267,23 +277,29 @@ function Mancala(): React.ReactElement {
       switch (player.type) {
         case 'Human':
           break;
-        case 'CPU':
+        case 'CPU': {
           const key = state.key;
           setCalculating(true);
-          wasm.search(state.board, player.params)
+          wasm
+            .search(state.board, player.params)
             .then((board: BoardState) => {
-              dispatch({type: 'put', key, board});
+              dispatch({ type: 'put', key, board });
               setCalculating(false);
-            }).catch((err: any) => console.error(err));
+            })
+            .catch((err: unknown) => console.error(err));
           break;
+        }
       }
     } else {
       setCalculating(true);
       const key = state.key;
-      wasm.calculateScore(state.board).then((score: [number, number]) => {
-        dispatch({type: 'judge', key, score});
-        setCalculating(false);
-      }).catch((err: any) => console.error(err));
+      wasm
+        .calculateScore(state.board)
+        .then((score: [number, number]) => {
+          dispatch({ type: 'judge', key, score });
+          setCalculating(false);
+        })
+        .catch((err: unknown) => console.error(err));
     }
   }, [calculating, playerMaster, state, setCalculating, wasm]);
 
@@ -292,32 +308,35 @@ function Mancala(): React.ReactElement {
     if (state.player[side] === 0) {
       setCalculating(true);
       const key = state.key;
-      wasm.calculateMoved(state.board, i).then((board: BoardState) => {
-        dispatch({type: 'put', key, board});
-        setCalculating(false);
-      }).catch((err: any) => console.error(err));
+      wasm
+        .calculateMoved(state.board, i)
+        .then((board: BoardState) => {
+          dispatch({ type: 'put', key, board });
+          setCalculating(false);
+        })
+        .catch((err: unknown) => console.error(err));
     }
   }
 
   function handlePlayerChange(side: Side, id: number): void {
     if (state.player[side] === id) return;
     cancel();
-    dispatch({type: 'change_player', side, id});
+    dispatch({ type: 'change_player', side, id });
   }
 
   function handleStealingChange(value: string): void {
     const stealing = value !== 'stealing';
     if (state.board.stealing === stealing) return;
     cancel();
-    dispatch({type: 'change_stealing', stealing});
+    dispatch({ type: 'change_stealing', stealing });
   }
 
   function resetBoard(): void {
     cancel();
-    dispatch({type: 'reset'});
+    dispatch({ type: 'reset' });
   }
 
-  let status;
+  let status: string;
   if (state.score === null) {
     status = `next player: ${state.board.side} side`;
   } else {
@@ -344,35 +363,25 @@ function Mancala(): React.ReactElement {
           stealing
         </label>
       </div>
-      <div className="content is-flex-direction-row">
-        First
-        <Select
-          items={playerMaster.map(showPlayer)}
-          selected={state.player.First}
-          isDisabled={false}
-          onChange={(i) => handlePlayerChange('First', i)}
+      <div className="content">
+        <PlayerSelection
+          playerLabels={['First', 'Second']}
+          playerOptions={playerMaster.map(showPlayer)}
+          selectedPlayers={[state.player.First, state.player.Second]}
+          onPlayerChange={(playerIndex: 0 | 1, optionIndex: number) => {
+            const side = playerIndex === 0 ? 'First' : 'Second';
+            handlePlayerChange(side, optionIndex);
+          }}
         />
-        vs
-        <Select
-          items={playerMaster.map(showPlayer)}
-          selected={state.player.Second}
-          isDisabled={false}
-          onChange={(i) => handlePlayerChange('Second', i)}
-        />
-        Second
       </div>
       <div className="content">
-        <Board
-          {...state.board}
-          finished={state.score !== null}
-          onClick={handleClick}
-        />
+        <Board {...state.board} finished={state.score !== null} onClick={handleClick} />
       </div>
       <div className="content">
         <p>{status}</p>
       </div>
       <div className="content">
-        <ResetButton hasWinner={state.score !== null} onClick={resetBoard}/>
+        <ResetButton hasWinner={state.score !== null} onClick={resetBoard} />
       </div>
     </div>
   );

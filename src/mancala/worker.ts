@@ -1,6 +1,6 @@
 import * as Comlink from 'comlink';
 
-const wasmImport = import('crate-mancala')
+const wasmImport = import('crate-mancala');
 
 const wasmModule = {
   async initialize() {

@@ -1,14 +1,13 @@
-import React, {useEffect, useMemo, useReducer} from 'react';
-
-import {Svg, Cross, Circle, Square} from '../svg';
-import {ResetButton} from '../button';
-import {Select} from '../select';
-import {useWorker} from '../workerHook';
-import {ModuleType} from './worker';
-
+import type React from 'react';
+import { useEffect, useMemo, useReducer } from 'react';
+import { PlayerSelection } from '../components/common/PlayerSelection';
+import { ResetButton } from '../components/common/ResetButton';
+import { Circle, Cross, Square, Svg } from '../components/common/Svg';
+import { useWorker } from '../workerHook';
+import type { ModuleType } from './worker';
 
 function createWorker(): Worker {
-  return new Worker('./worker', {
+  return new Worker(new URL('./worker', import.meta.url), {
     name: 'connect-four',
     type: 'module',
   });
@@ -17,26 +16,26 @@ function createWorker(): Worker {
 type Side = 'A' | 'B';
 
 interface BoardBase {
-  readonly cols: ReadonlyArray<ReadonlyArray<Side>>
+  readonly cols: ReadonlyArray<ReadonlyArray<Side>>;
 }
 
 interface BoardState extends BoardBase {
-  readonly next: Side
+  readonly next: Side;
   readonly history: ReadonlyArray<{
-    readonly position: number
-    readonly score?: string
-  }>
+    readonly position: number;
+    readonly score?: string;
+  }>;
 }
 
 interface BoardProps extends BoardBase {
-  readonly onClick: (i: number) => void
+  readonly onClick: (i: number) => void;
 }
 
 interface ColumnProps {
-  readonly col: ReadonlyArray<Side>
-  readonly size: number
-  readonly x: number
-  readonly onClick: () => void
+  readonly col: ReadonlyArray<Side>;
+  readonly size: number;
+  readonly x: number;
+  readonly onClick: () => void;
 }
 
 function Column(props: ColumnProps): React.ReactElement {
@@ -45,21 +44,17 @@ function Column(props: ColumnProps): React.ReactElement {
   for (let row = 0; row < 6; row++) {
     const y = (5 - row) * props.size;
     const cy = y + props.size / 2;
-    col.push(<Square x={props.x} y={y} size={props.size} onClick={props.onClick} key={row * 2}/>);
+    col.push(<Square x={props.x} y={y} size={props.size} onClick={props.onClick} key={row * 2} />);
     switch (props.col[row]) {
       case 'A':
-        col.push(<Cross centerX={cx} centerY={cy} size={props.size} key={row * 2 + 1}/>);
+        col.push(<Cross centerX={cx} centerY={cy} size={props.size} key={row * 2 + 1} />);
         break;
       case 'B':
-        col.push(<Circle centerX={cx} centerY={cy} size={props.size} key={row * 2 + 1}/>);
+        col.push(<Circle centerX={cx} centerY={cy} size={props.size} key={row * 2 + 1} />);
         break;
     }
   }
-  return (
-    <React.Fragment>
-      {col}
-    </React.Fragment>
-  );
+  return <>{col}</>;
 }
 
 function Board(props: BoardProps): React.ReactElement {
@@ -68,10 +63,10 @@ function Board(props: BoardProps): React.ReactElement {
     <Svg width={cell_size * 7} height={cell_size * 6}>
       {props.cols.map((col, i) => {
         const x = cell_size * i;
-        return (<Column col={col} size={cell_size} x={x} onClick={() => props.onClick(i)} key={i}/>);
+        return <Column col={col} size={cell_size} x={x} onClick={() => props.onClick(i)} key={`col-${i}`} />;
       })}
     </Svg>
-  )
+  );
 }
 
 function put(board: BoardState, position: number, score?: string): BoardState {
@@ -87,48 +82,45 @@ function put(board: BoardState, position: number, score?: string): BoardState {
   return {
     cols,
     next: board.next === 'A' ? 'B' : 'A',
-    history: board.history.concat([{position, score}])
+    history: board.history.concat([{ position, score }]),
   };
 }
 
 interface SearchResponse {
-  readonly position?: number
-  readonly score: string
+  readonly position?: number;
+  readonly score: string;
 }
 
 interface HumanPlayer {
-  readonly type: 'Human'
-  readonly name: string
+  readonly type: 'Human';
+  readonly name: string;
 }
 
 interface McTreePlayer {
-  readonly type: 'MCTree'
-  readonly name: string
-  readonly limit: number
-  readonly expansion_threshold: number
-  readonly c: number
+  readonly type: 'MCTree';
+  readonly name: string;
+  readonly limit: number;
+  readonly expansion_threshold: number;
+  readonly c: number;
 }
 
-type Player =
-  | HumanPlayer
-  | McTreePlayer;
+type Player = HumanPlayer | McTreePlayer;
 
 type Winner = Side | 'F' | null;
 
 interface ConnectFourState {
-  readonly board: BoardState
-  readonly key: number
-  readonly winner: Winner
-  readonly judged: boolean
-  readonly player: { [P in Side]: number }
+  readonly board: BoardState;
+  readonly key: number;
+  readonly winner: Winner;
+  readonly judged: boolean;
+  readonly player: { [P in Side]: number };
 }
 
 type Action =
   | { type: 'reset' }
-  | { type: 'change_player', side: Side, id: number }
-  | { type: 'put', key: number, side: Side, position: number, score?: string }
-  | { type: 'judge', key: number, winner: Winner }
-  ;
+  | { type: 'change_player'; side: Side; id: number }
+  | { type: 'put'; key: number; side: Side; position: number; score?: string }
+  | { type: 'judge'; key: number; winner: Winner };
 
 function init(player: { [P in Side]: number }): ConnectFourState {
   return {
@@ -150,7 +142,7 @@ function reducer(state: ConnectFourState, action: Action): ConnectFourState {
       return init(state.player);
     case 'change_player':
       if (state.player[action.side] === action.id) return state;
-      return init({...state.player, [action.side]: action.id});
+      return init({ ...state.player, [action.side]: action.id });
     case 'put':
       if (action.key !== state.key) return state;
       if (state.board.next !== action.side) return state;
@@ -173,29 +165,32 @@ function reducer(state: ConnectFourState, action: Action): ConnectFourState {
 }
 
 function ConnectFour(): React.ReactElement {
-  const playerMaster = useMemo<ReadonlyArray<Player>>(() => [
-    {
-      type: 'Human',
-      name: 'Human',
-    },
-    {
-      type: 'MCTree',
-      name: 'MCTree (200ms)',
-      limit: 200,
-      expansion_threshold: 2,
-      c: 2.0,
-    },
-    {
-      type: 'MCTree',
-      name: 'MCTree (3s)',
-      limit: 3000,
-      expansion_threshold: 2,
-      c: 2.0,
-    },
-  ], []);
+  const playerMaster = useMemo<ReadonlyArray<Player>>(
+    () => [
+      {
+        type: 'Human',
+        name: 'Human',
+      },
+      {
+        type: 'MCTree',
+        name: 'MCTree (200ms)',
+        limit: 200,
+        expansion_threshold: 2,
+        c: 2.0,
+      },
+      {
+        type: 'MCTree',
+        name: 'MCTree (3s)',
+        limit: 3000,
+        expansion_threshold: 2,
+        c: 2.0,
+      },
+    ],
+    [],
+  );
 
   const [calculating, setCalculating, wasm, cancel] = useWorker<ModuleType>(createWorker);
-  const [state, dispatch] = useReducer(reducer, init({A: 0, B: 0}));
+  const [state, dispatch] = useReducer(reducer, init({ A: 0, B: 0 }));
 
   useEffect(() => {
     if (calculating) return;
@@ -206,27 +201,33 @@ function ConnectFour(): React.ReactElement {
       switch (player.type) {
         case 'Human':
           break;
-        case 'MCTree':
+        case 'MCTree': {
           const key = state.key;
           setCalculating(true);
-          wasm.mctree({cols: state.board.cols}, player.limit, player.expansion_threshold, player.c)
+          wasm
+            .mctree({ cols: state.board.cols }, player.limit, player.expansion_threshold, player.c)
             .then((r: SearchResponse) => {
               if (typeof r.position === 'number') {
-                dispatch({type: 'put', key, side, position: r.position, score: r.score});
+                dispatch({ type: 'put', key, side, position: r.position, score: r.score });
               } else {
                 console.error(r);
               }
               setCalculating(false);
-            }).catch((err: any) => console.error(err));
+            })
+            .catch((err: unknown) => console.error(err));
           break;
+        }
       }
     } else {
       setCalculating(true);
       const key = state.key;
-      wasm.calculateWinner({cols: state.board.cols}).then((winner: Winner) => {
-        dispatch({type: 'judge', key, winner});
-        setCalculating(false);
-      }).catch((err: any) => console.error(err));
+      wasm
+        .calculateWinner({ cols: state.board.cols })
+        .then((winner: Winner) => {
+          dispatch({ type: 'judge', key, winner });
+          setCalculating(false);
+        })
+        .catch((err: unknown) => console.error(err));
     }
   }, [calculating, playerMaster, state, setCalculating, wasm]);
 
@@ -234,67 +235,71 @@ function ConnectFour(): React.ReactElement {
     if (state.board.cols[i].length >= 6) return;
     const side = state.board.next;
     if (playerMaster[state.player[side]].type === 'Human') {
-      dispatch({type: 'put', key: state.key, side, position: i});
+      dispatch({ type: 'put', key: state.key, side, position: i });
     }
   }
 
   function handlePlayerChange(side: Side, id: number): void {
     if (state.player[side] !== id) {
       cancel();
-      dispatch({type: 'change_player', side, id});
+      dispatch({ type: 'change_player', side, id });
     }
   }
 
   function resetBoard(): void {
     cancel();
-    dispatch({type: 'reset'});
+    dispatch({ type: 'reset' });
   }
 
-  let status;
+  let status: string;
   if (state.winner === null) {
     status = `next player: ${state.board.next}`;
   } else if (state.winner === 'F') {
     status = 'draw';
   } else {
-    status = `winner: ${state.winner}`
+    status = `winner: ${state.winner}`;
   }
 
-  const history = state.board.history.map((h, i) => {
-    const n = `(${i + 1})`;
-    if (h.score != null) {
-      return <li key={i}>{n} {'AB'[i % 2]}: pos={h.position} score={h.score}</li>
-    } else {
-      return <li key={i}>{n} {'AB'[i % 2]}: pos={h.position}</li>
-    }
-  }).reverse();
+  const history = state.board.history
+    .map((h, i) => {
+      const n = `(${i + 1})`;
+      if (h.score != null) {
+        return (
+          <li key={`history-${i}`}>
+            {n} {'AB'[i % 2]}: pos={h.position} score={h.score}
+          </li>
+        );
+      } else {
+        return (
+          <li key={`history-${i}`}>
+            {n} {'AB'[i % 2]}: pos={h.position}
+          </li>
+        );
+      }
+    })
+    .reverse();
 
   return (
     <div className="container">
-      <div className="content is-flex-direction-row">
-        X
-        <Select
-          items={playerMaster.map((p) => p.name)}
-          selected={state.player.A}
-          isDisabled={false}
-          onChange={(i) => handlePlayerChange('A', i)}
+      <div className="content">
+        <PlayerSelection
+          playerLabels={['X', 'O']}
+          playerOptions={playerMaster.map((p) => p.name)}
+          selectedPlayers={[state.player.A, state.player.B]}
+          onPlayerChange={(playerIndex: 0 | 1, optionIndex: number) => {
+            const side = playerIndex === 0 ? 'A' : 'B';
+            handlePlayerChange(side, optionIndex);
+          }}
         />
-        vs
-        <Select
-          items={playerMaster.map((p) => p.name)}
-          selected={state.player.B}
-          isDisabled={false}
-          onChange={(i) => handlePlayerChange('B', i)}
-        />
-        O
       </div>
       <div className="content">
-        <Board onClick={handleClick} cols={state.board.cols}/>
+        <Board onClick={handleClick} cols={state.board.cols} />
       </div>
       <div className="content">
         <p>{status}</p>
       </div>
       <div className="content">
-        <ResetButton hasWinner={state.winner !== null} onClick={resetBoard}/>
+        <ResetButton hasWinner={state.winner !== null} onClick={resetBoard} />
       </div>
       <div className="content">
         <ul>{history}</ul>

@@ -1,6 +1,6 @@
 import * as Comlink from 'comlink';
 
-const wasmImport = import('crate-tic-tac-toe')
+const wasmImport = import('crate-tic-tac-toe');
 
 const wasmModule = {
   async initialize() {
