@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useEffect, useMemo, useReducer } from 'react';
 import { ResetButton } from '../button';
-import { Select } from '../select';
+import { PlayerSelection } from '../PlayerSelection';
 import { Svg } from '../svg';
 import { useWorker } from '../workerHook';
 import type { ModuleType } from './worker';
@@ -363,22 +363,16 @@ function Mancala(): React.ReactElement {
           stealing
         </label>
       </div>
-      <div className="content is-flex-direction-row">
-        First
-        <Select
-          items={playerMaster.map(showPlayer)}
-          selected={state.player.First}
-          isDisabled={false}
-          onChange={(i) => handlePlayerChange('First', i)}
+      <div className="content">
+        <PlayerSelection
+          playerLabels={['First', 'Second']}
+          playerOptions={playerMaster.map(showPlayer)}
+          selectedPlayers={[state.player.First, state.player.Second]}
+          onPlayerChange={(playerIndex, optionIndex) => {
+            const side = playerIndex === 0 ? 'First' : 'Second';
+            handlePlayerChange(side, optionIndex);
+          }}
         />
-        vs
-        <Select
-          items={playerMaster.map(showPlayer)}
-          selected={state.player.Second}
-          isDisabled={false}
-          onChange={(i) => handlePlayerChange('Second', i)}
-        />
-        Second
       </div>
       <div className="content">
         <Board {...state.board} finished={state.score !== null} onClick={handleClick} />

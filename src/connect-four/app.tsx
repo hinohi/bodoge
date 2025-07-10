@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useEffect, useMemo, useReducer } from 'react';
 import { ResetButton } from '../button';
-import { Select } from '../select';
+import { PlayerSelection } from '../PlayerSelection';
 import { Circle, Cross, Square, Svg } from '../svg';
 import { useWorker } from '../workerHook';
 import type { ModuleType } from './worker';
@@ -281,22 +281,16 @@ function ConnectFour(): React.ReactElement {
 
   return (
     <div className="container">
-      <div className="content is-flex-direction-row">
-        X
-        <Select
-          items={playerMaster.map((p) => p.name)}
-          selected={state.player.A}
-          isDisabled={false}
-          onChange={(i) => handlePlayerChange('A', i)}
+      <div className="content">
+        <PlayerSelection
+          playerLabels={['X', 'O']}
+          playerOptions={playerMaster.map((p) => p.name)}
+          selectedPlayers={[state.player.A, state.player.B]}
+          onPlayerChange={(playerIndex, optionIndex) => {
+            const side = playerIndex === 0 ? 'A' : 'B';
+            handlePlayerChange(side, optionIndex);
+          }}
         />
-        vs
-        <Select
-          items={playerMaster.map((p) => p.name)}
-          selected={state.player.B}
-          isDisabled={false}
-          onChange={(i) => handlePlayerChange('B', i)}
-        />
-        O
       </div>
       <div className="content">
         <Board onClick={handleClick} cols={state.board.cols} />

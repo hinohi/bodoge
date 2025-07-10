@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useReducer } from 'react';
 import { ResetButton } from '../button';
-import { Select } from '../select';
+import { PlayerSelection } from '../PlayerSelection';
 import { Circle, Cross, Square, Svg } from '../svg';
 import { useWorker } from '../workerHook';
 import type { ModuleType } from './worker';
@@ -226,22 +226,16 @@ function TicTacToe(): React.ReactElement {
 
   return (
     <div className="container">
-      <div className="content is-flex-direction-row">
-        X
-        <Select
-          items={playerMaster}
-          selected={state.player.X}
-          isDisabled={false}
-          onChange={(i) => handlePlayerChange('X', i)}
+      <div className="content">
+        <PlayerSelection
+          playerLabels={['X', 'O']}
+          playerOptions={playerMaster}
+          selectedPlayers={[state.player.X, state.player.O]}
+          onPlayerChange={(playerIndex, optionIndex) => {
+            const side = playerIndex === 0 ? 'X' : 'O';
+            handlePlayerChange(side, optionIndex);
+          }}
         />
-        vs
-        <Select
-          items={playerMaster}
-          selected={state.player.O}
-          isDisabled={false}
-          onChange={(i) => handlePlayerChange('O', i)}
-        />
-        O
       </div>
       <div className="content">
         <Board squares={state.board.squares} onClick={handleClick} />
