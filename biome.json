@@ -7,7 +7,14 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["src/**/*.{js,jsx,ts,tsx}", "*.{js,ts,json}", "!**/node_modules/**", "!**/dist/**", "!**/build/**"]
+    "includes": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "e2e/**/*.{js,jsx,ts,tsx}",
+      "*.{js,ts,json}",
+      "!**/node_modules/**",
+      "!**/dist/**",
+      "!**/build/**"
+    ]
   },
   "formatter": {
     "enabled": true,

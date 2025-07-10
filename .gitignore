@@ -34,3 +34,8 @@ pkg/
 !*.d.ts
 
 .tool-versions
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/

@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useEffect, useMemo, useReducer } from 'react';
-import { ResetButton } from '../components/common/ResetButton';
 import { PlayerSelection } from '../components/common/PlayerSelection';
+import { ResetButton } from '../components/common/ResetButton';
 import { Circle, Cross, Square, Svg } from '../components/common/Svg';
 import { useWorker } from '../workerHook';
 import type { ModuleType } from './worker';
