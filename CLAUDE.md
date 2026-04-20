@@ -13,14 +13,18 @@ Bodoge! (ボドゲ！) is a web-based board game application that implements Tic
 
 ### Development Workflow
 
-1. **Build WASM packages first** (required before running frontend):
+1. **Build WASM packages** (release build for all three crates):
    ```bash
-   wasm-pack build tic-tac-toe
-   wasm-pack build connect-four
-   wasm-pack build mancala
+   npm run build:wasm          # release
+   npm run build:wasm:dev      # debug
    ```
+   Under the hood this runs `scripts/build-wasm.sh`, which invokes
+   `cargo build --target wasm32-unknown-unknown` and then `wasm-bindgen`
+   to emit `<crate>/pkg/`. Requires `wasm-bindgen-cli` on PATH
+   (`cargo install wasm-bindgen-cli`) and the `wasm32-unknown-unknown`
+   target (`rustup target add wasm32-unknown-unknown`).
 
-2. **Start development server**:
+2. **Start development server** (builds WASM in debug first):
    ```bash
    npm run dev
    ```
@@ -30,11 +34,6 @@ Bodoge! (ボドゲ！) is a web-based board game application that implements Tic
 Run all Rust tests:
 ```bash
 cargo test --all
-```
-
-Run WASM tests for a specific game:
-```bash
-wasm-pack test --node [game-name]
 ```
 
 Run frontend tests:
@@ -60,19 +59,12 @@ npm run format      # Format code
 
 ### Production Build & Deploy
 
-1. Build WASM for release:
-   ```bash
-   wasm-pack build --release tic-tac-toe
-   wasm-pack build --release connect-four
-   wasm-pack build --release mancala
-   ```
-
-2. Build frontend:
+1. Build frontend (runs `build:wasm` automatically):
    ```bash
    npm run build
    ```
 
-3. Deploy to GitHub Pages:
+2. Deploy to GitHub Pages:
    ```bash
    npm run deploy
    ```
@@ -113,11 +105,14 @@ Each game follows this structure:
 
 ## Important Notes
 
-- Always build WASM packages before running the frontend
-- The project uses a Rust workspace with three member crates
-- Web Workers prevent UI blocking during AI calculations
-- Vite configuration (`vite.config.ts`) handles WASM files with vite-plugin-wasm
-- Each WASM package is referenced as a local file dependency in `package.json`
-- Build tool: Vite (migrated from Create React App)
-- Linter: Biome v2 (migrated from ESLint)
-- Build output is in `dist/` instead of `build/`
+- `npm run dev` / `npm run build` rebuild the WASM packages automatically via `scripts/build-wasm.sh`; no separate step needed.
+- The project uses a Rust workspace with three member crates.
+- Web Workers prevent UI blocking during AI calculations.
+- Vite configuration (`vite.config.ts`) handles WASM files with vite-plugin-wasm.
+- Each WASM package is referenced as a local file dependency in `package.json`.
+- `mancala`'s transitive `getrandom` 0.3 dep needs `RUSTFLAGS='--cfg getrandom_backend="wasm_js"'`; the build script sets this automatically.
+- `src/env.js` shims the `env` module imported by wasm-bindgen output (the `instant` crate requires `env.now`).
+- Build tool: Vite (migrated from Create React App).
+- WASM tooling: `wasm-bindgen-cli` directly (migrated from `wasm-pack`).
+- Linter: Biome v2 (migrated from ESLint).
+- Build output is in `dist/` instead of `build/`.

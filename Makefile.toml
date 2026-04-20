@@ -19,21 +19,14 @@ dependencies = [
 command = "cargo"
 args = ["test"]
 
-[tasks.wasm-test]
-command = "wasm-pack"
-args = ["test", "--node"]
-
 [tasks.test]
 dependencies = [
     "lint",
     "cargo-test",
-    "wasm-test"
 ]
 
 [tasks.wasm-build]
-command = "wasm-pack"
-args = ["build"]
+script = ["bash scripts/build-wasm.sh --dev"]
 
 [tasks.wasm-release-build]
-command = "wasm-pack"
-args = ["build", "--release"]
+script = ["bash scripts/build-wasm.sh"]

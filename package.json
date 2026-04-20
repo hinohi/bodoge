@@ -40,8 +40,10 @@
     "web-vitals": "^5.0.3"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "build:wasm": "bash scripts/build-wasm.sh",
+    "build:wasm:dev": "bash scripts/build-wasm.sh --dev",
+    "dev": "npm run build:wasm:dev && vite",
+    "build": "npm run build:wasm && tsc && vite build",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist",
     "test": "vitest",
