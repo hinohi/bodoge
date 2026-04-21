@@ -112,6 +112,116 @@ test.describe('Tic Tac Toe Game', () => {
     expect(aiMoved).toBeTruthy();
   });
 
+  test('should handle multiple AI moves in same game', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (err) => errors.push(err.message));
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') errors.push(msg.text());
+    });
+
+    await ticTacToePage.selectPlayer2('AI (Full Exploration)');
+
+    await ticTacToePage.clickCell(1, 1);
+    await ticTacToePage.waitForAIMove();
+
+    // Next human move → expect second AI response
+    // Find empty cell
+    let nextCell: [number, number] | null = null;
+    for (let r = 0; r < 3 && !nextCell; r++) {
+      for (let c = 0; c < 3 && !nextCell; c++) {
+        if ((await ticTacToePage.getCellMark(r, c)) === null) nextCell = [r, c];
+      }
+    }
+    if (nextCell) {
+      await ticTacToePage.clickCell(nextCell[0], nextCell[1]);
+      await ticTacToePage.waitForAIMove();
+    }
+
+    expect(errors, `Errors observed: ${errors.join('; ')}`).toEqual([]);
+  });
+
+  test('should play against AI when X is AI', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (err) => errors.push(err.message));
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') errors.push(msg.text());
+    });
+
+    // Make X the AI — AI should move first
+    await ticTacToePage.selectPlayer1('AI (Full Exploration)');
+    await ticTacToePage.waitForAIMove();
+    await ticTacToePage.page.waitForTimeout(500);
+
+    // Confirm X appeared somewhere
+    let aiMoved = false;
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        if ((await ticTacToePage.getCellMark(r, c)) === 'X') aiMoved = true;
+      }
+    }
+    expect(errors, `Errors observed: ${errors.join('; ')}`).toEqual([]);
+    expect(aiMoved).toBeTruthy();
+  });
+
+  test('should play against AI after changing player twice', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (err) => errors.push(err.message));
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') errors.push(msg.text());
+    });
+
+    // Enable AI for O, play one move
+    await ticTacToePage.selectPlayer2('AI (Full Exploration)');
+    await ticTacToePage.clickCell(1, 1);
+    await ticTacToePage.waitForAIMove();
+
+    // Toggle back to Human, then to AI again
+    await ticTacToePage.selectPlayer2('Human');
+    await ticTacToePage.page.waitForTimeout(100);
+    await ticTacToePage.selectPlayer2('AI (Full Exploration)');
+    await ticTacToePage.page.waitForTimeout(100);
+
+    // Play move and expect AI response
+    await ticTacToePage.clickCell(0, 0);
+    await ticTacToePage.waitForAIMove();
+
+    expect(errors, `Errors observed: ${errors.join('; ')}`).toEqual([]);
+  });
+
+  test('should play against AI after reset', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (err) => errors.push(err.message));
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') errors.push(msg.text());
+    });
+
+    await ticTacToePage.selectPlayer2('AI (Full Exploration)');
+
+    // First game: play 1 move and confirm AI responds
+    await ticTacToePage.clickCell(1, 1);
+    await ticTacToePage.waitForAIMove();
+
+    // Reset and play second game
+    await ticTacToePage.clickReset();
+    await ticTacToePage.page.waitForTimeout(100);
+
+    await ticTacToePage.clickCell(0, 0);
+    await ticTacToePage.waitForAIMove();
+
+    // Verify AI moved in the second game
+    let aiMoved = false;
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 3; col++) {
+        if (row === 0 && col === 0) continue;
+        if ((await ticTacToePage.getCellMark(row, col)) === 'O') {
+          aiMoved = true;
+        }
+      }
+    }
+    expect(errors, `Errors observed: ${errors.join('; ')}`).toEqual([]);
+    expect(aiMoved).toBeTruthy();
+  });
+
   test('should detect draw game', async () => {
     // Play a draw game
     const moves = [

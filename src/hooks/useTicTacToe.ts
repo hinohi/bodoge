@@ -133,7 +133,7 @@ export function useTicTacToe(playerOptions: string[]) {
 
   // Check for winner after each move
   useEffect(() => {
-    if (!wasm || state.judged) return;
+    if (!wasm || wasmLoading || state.judged) return;
 
     setIsCalculating(true);
     wasm
@@ -143,11 +143,11 @@ export function useTicTacToe(playerOptions: string[]) {
       })
       .catch((err: unknown) => console.error('Error calculating winner:', err))
       .finally(() => setIsCalculating(false));
-  }, [wasm, state.judged, state.board.squares, dispatch]);
+  }, [wasm, wasmLoading, state.judged, state.board.squares, dispatch]);
 
   // Handle AI moves
   useEffect(() => {
-    if (!wasm || state.isGameOver || !state.judged) return;
+    if (!wasm || wasmLoading || state.isGameOver || !state.judged) return;
 
     const currentPlayerType = playerOptions[state.players[state.currentPlayer]];
     if (!currentPlayerType || currentPlayerType === 'Human') return;
@@ -164,6 +164,7 @@ export function useTicTacToe(playerOptions: string[]) {
       .finally(() => setIsCalculating(false));
   }, [
     wasm,
+    wasmLoading,
     state.currentPlayer,
     state.players,
     state.isGameOver,
