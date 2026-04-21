@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/app-CcdNFEAe.js","assets/index-DtP9k4tQ.js","assets/index-BmA5ceCh.css","assets/Svg-DmZdZPEw.js"])))=>i.map(i=>d[i]);
+import{j as o,r as t,_ as r}from"./index-DtP9k4tQ.js";import{L as e}from"./Loading-CQAaEGCx.js";const s=t.lazy(()=>r(()=>import("./app-CcdNFEAe.js"),__vite__mapDeps([0,1,2,3]))),i=()=>o.jsx(t.Suspense,{fallback:o.jsx(e,{text:"Loading Connect Four..."}),children:o.jsx(s,{})});export{i as ConnectFourPage,i as default};

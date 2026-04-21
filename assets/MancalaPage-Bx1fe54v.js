@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/app-9kahqrYn.js","assets/index-DtP9k4tQ.js","assets/index-BmA5ceCh.css","assets/Svg-DmZdZPEw.js"])))=>i.map(i=>d[i]);
+import{j as a,r as t,_ as r}from"./index-DtP9k4tQ.js";import{L as s}from"./Loading-CQAaEGCx.js";const o=t.lazy(()=>r(()=>import("./app-9kahqrYn.js"),__vite__mapDeps([0,1,2,3]))),i=()=>a.jsx(t.Suspense,{fallback:a.jsx(s,{text:"Loading Mancala..."}),children:a.jsx(o,{})});export{i as MancalaPage,i as default};

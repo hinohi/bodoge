@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/index-D6S3JVcr.js","assets/index-DtP9k4tQ.js","assets/index-BmA5ceCh.css","assets/Svg-DmZdZPEw.js"])))=>i.map(i=>d[i]);
+import{j as e,r as o,_ as t}from"./index-DtP9k4tQ.js";import{L as r}from"./Loading-CQAaEGCx.js";const s=o.lazy(()=>t(()=>import("./index-D6S3JVcr.js"),__vite__mapDeps([0,1,2,3])).then(a=>({default:a.TicTacToe}))),T=()=>e.jsx(o.Suspense,{fallback:e.jsx(r,{text:"Loading Tic Tac Toe..."}),children:e.jsx(s,{})});export{T as TicTacToePage};

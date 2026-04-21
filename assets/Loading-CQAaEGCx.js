@@ -1,0 +1,1 @@
+import{j as s}from"./index-DtP9k4tQ.js";const a=({text:e="Loading..."})=>s.jsx("div",{className:"section",children:s.jsxs("div",{className:"container has-text-centered",children:[s.jsx("div",{className:"is-size-4",children:e}),s.jsx("progress",{className:"progress is-primary",max:"100"})]})});export{a as L};
