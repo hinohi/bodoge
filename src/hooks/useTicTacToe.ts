@@ -28,6 +28,7 @@ const initialState: TicTacToeGameState = {
   players: { X: 0, O: 0 },
   winner: null,
   isGameOver: false,
+  judged: true,
   gameKey: Date.now(),
 };
 
@@ -77,6 +78,7 @@ function ticTacToeReducer(state: TicTacToeGameState, action: TicTacToeAction): T
           ],
         },
         currentPlayer: state.currentPlayer === 'X' ? 'O' : 'X',
+        judged: false,
       };
     }
 
@@ -85,6 +87,7 @@ function ticTacToeReducer(state: TicTacToeGameState, action: TicTacToeAction): T
         ...state,
         winner: action.payload.winner,
         isGameOver: action.payload.winner !== null,
+        judged: true,
       };
 
     default:
@@ -130,24 +133,21 @@ export function useTicTacToe(playerOptions: string[]) {
 
   // Check for winner after each move
   useEffect(() => {
-    if (!wasm || state.winner !== null || isCalculating) return;
-
-    const lastMove = state.board.moveHistory[state.board.moveHistory.length - 1];
-    if (!lastMove) return;
+    if (!wasm || state.judged) return;
 
     setIsCalculating(true);
     wasm
       .calculateWinner(state.board.squares)
-      .then((winner: TicTacToeSide | 'E' | null) => {
-        dispatch({ type: 'SET_WINNER', payload: { winner } });
+      .then((winner: TicTacToeSide | 'E' | null | undefined) => {
+        dispatch({ type: 'SET_WINNER', payload: { winner: winner ?? null } });
       })
       .catch((err: unknown) => console.error('Error calculating winner:', err))
       .finally(() => setIsCalculating(false));
-  }, [wasm, state.board.moveHistory, state.board.squares, state.winner, isCalculating, dispatch]);
+  }, [wasm, state.judged, state.board.squares, dispatch]);
 
   // Handle AI moves
   useEffect(() => {
-    if (!wasm || state.isGameOver || isCalculating) return;
+    if (!wasm || state.isGameOver || !state.judged) return;
 
     const currentPlayerType = playerOptions[state.players[state.currentPlayer]];
     if (!currentPlayerType || currentPlayerType === 'Human') return;
@@ -167,9 +167,9 @@ export function useTicTacToe(playerOptions: string[]) {
     state.currentPlayer,
     state.players,
     state.isGameOver,
+    state.judged,
     state.board.squares,
     playerOptions,
-    isCalculating,
     makeMove,
   ]);
 

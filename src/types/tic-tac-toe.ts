@@ -16,6 +16,7 @@ export interface TicTacToeGameState {
   players: Record<TicTacToeSide, number>;
   winner: TicTacToeSide | 'E' | null;
   isGameOver: boolean;
+  judged: boolean;
   gameKey: number;
 }
 

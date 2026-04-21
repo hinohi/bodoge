@@ -27,8 +27,7 @@ test.describe('Tic Tac Toe Game', () => {
     expect(await ticTacToePage.getPlayer2Selection()).toBe('0'); // Human
   });
 
-  test.skip('should allow human vs human gameplay', async () => {
-    // Skip due to application bug: shows "Winner: undefined"
+  test('should allow human vs human gameplay', async () => {
     // X plays first move
     await ticTacToePage.clickCell(0, 0);
     await ticTacToePage.page.waitForTimeout(100); // Wait for state update
@@ -54,8 +53,7 @@ test.describe('Tic Tac Toe Game', () => {
     expect(await ticTacToePage.isGameOver()).toBeTruthy();
   });
 
-  test.skip('should not allow clicking occupied cells', async () => {
-    // Skip due to application bug: shows "Winner: undefined"
+  test('should not allow clicking occupied cells', async () => {
     // X plays first move
     await ticTacToePage.clickCell(0, 0);
     await ticTacToePage.page.waitForTimeout(100); // Wait for state update
@@ -86,8 +84,7 @@ test.describe('Tic Tac Toe Game', () => {
     expect(await ticTacToePage.getCellMark(0, 1)).toBeNull();
   });
 
-  test.skip('should play against AI', async () => {
-    // Skip due to application bug: shows "Winner: undefined"
+  test('should play against AI', async () => {
     // Set player 2 to AI
     await ticTacToePage.selectPlayer2('AI (Full Exploration)');
 
@@ -115,8 +112,7 @@ test.describe('Tic Tac Toe Game', () => {
     expect(aiMoved).toBeTruthy();
   });
 
-  test.skip('should detect draw game', async () => {
-    // Skip due to application bug: shows "Winner: undefined"
+  test('should detect draw game', async () => {
     // Play a draw game
     const moves = [
       [0, 0], // X
