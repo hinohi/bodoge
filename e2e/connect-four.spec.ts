@@ -126,6 +126,14 @@ test.describe('Connect Four Game', () => {
     await expect.poll(() => connectFourPage.getStatus()).toBe('next player: B');
   });
 
+  test('should let the CPU play against MCTree', async ({ page }) => {
+    await connectFourPage.selectPlayer2('MCTree (200ms)');
+    await connectFourPage.selectPlayer1('CPU (200ms)');
+
+    await expect(page.getByText(/\(1\) A: pos=3/)).toBeVisible();
+    await expect(page.getByText(/\(2\) B: pos=/)).toBeVisible();
+  });
+
   test('should detect draw when board is full', async () => {
     // This is a complex scenario, so we'll use a simplified test
     // Fill the board in a way that prevents anyone from winning

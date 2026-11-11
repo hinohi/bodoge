@@ -64,8 +64,9 @@ cargo run --release -p connect-four --example self_play -- \
   --a search:50000nodes --b search:500000nodes --pairs 8 --seed 1
 ```
 
-The browser's CPU settings use the same search with time budgets of 200 ms
-and 1 second. The engine uses iterative-deepening alpha–beta search with
+The browser offers the new CPU at 200 ms and 1 second, and MCTree at 200 ms
+and 3 seconds. Each side can use a different engine. The new CPU uses
+iterative-deepening alpha–beta search with
 transposition caching and checks for immediate wins and forced defenses
 before evaluating a position. It can prove wins, losses, and draws when the
 search reaches far enough. Timed games can vary with CPU load.

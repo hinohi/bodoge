@@ -97,7 +97,7 @@ interface HumanPlayer {
 }
 
 interface CpuPlayer {
-  readonly type: 'CPU';
+  readonly type: 'CPU' | 'MCTree';
   readonly name: string;
   readonly limit: number;
 }
@@ -179,6 +179,16 @@ function ConnectFour(): React.ReactElement {
         name: 'CPU (1s)',
         limit: 1000,
       },
+      {
+        type: 'MCTree',
+        name: 'MCTree (200ms)',
+        limit: 200,
+      },
+      {
+        type: 'MCTree',
+        name: 'MCTree (3s)',
+        limit: 3000,
+      },
     ],
     [],
   );
@@ -192,26 +202,23 @@ function ConnectFour(): React.ReactElement {
     if (state.judged) {
       const side = state.board.next;
       const player = playerMaster[state.player[side]];
-      switch (player.type) {
-        case 'Human':
-          break;
-        case 'CPU': {
-          const key = state.key;
-          setCalculating(true);
-          wasm
-            .searchMove({ cols: state.board.cols }, player.limit)
-            .then((r: SearchResponse) => {
-              if (typeof r.position === 'number') {
-                dispatch({ type: 'put', key, side, position: r.position, score: r.score });
-              } else {
-                console.error(r);
-              }
-              setCalculating(false);
-            })
-            .catch((err: unknown) => console.error(err));
-          break;
-        }
-      }
+      if (player.type === 'Human') return;
+
+      const key = state.key;
+      const board = { cols: state.board.cols };
+      setCalculating(true);
+      const search =
+        player.type === 'MCTree' ? wasm.mctree(board, player.limit, 2, 2.0) : wasm.searchMove(board, player.limit);
+      search
+        .then((r: SearchResponse) => {
+          if (typeof r.position === 'number') {
+            dispatch({ type: 'put', key, side, position: r.position, score: r.score });
+          } else {
+            console.error(r);
+          }
+          setCalculating(false);
+        })
+        .catch((err: unknown) => console.error(err));
     } else {
       setCalculating(true);
       const key = state.key;
