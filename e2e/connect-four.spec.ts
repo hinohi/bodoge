@@ -111,22 +111,19 @@ test.describe('Connect Four Game', () => {
     }
   });
 
-  test('should play against AI', async () => {
-    // Set player 2 to AI
-    await connectFourPage.selectPlayer2('MCTree (200ms)');
-
-    // Human (A) plays first move
+  test('should play against the CPU', async ({ page }) => {
+    await connectFourPage.selectPlayer2('CPU (200ms)');
     await connectFourPage.dropPiece(3);
 
-    // Wait for AI to make a move
-    await connectFourPage.waitForAIMove();
+    await expect(page.getByText(/\(2\) B: pos=/)).toBeVisible();
+    await expect.poll(() => connectFourPage.getStatus()).toBe('next player: A');
+  });
 
-    // Check that AI made a move (at least 2 pieces on board)
-    let totalPieces = 0;
-    for (let col = 0; col < 7; col++) {
-      totalPieces += await connectFourPage.getColumnHeight(col);
-    }
-    expect(totalPieces).toBeGreaterThanOrEqual(2);
+  test('should open in the center as the CPU', async () => {
+    await connectFourPage.selectPlayer1('CPU (1s)');
+
+    await expect.poll(() => connectFourPage.getColumnHeight(3)).toBe(1);
+    await expect.poll(() => connectFourPage.getStatus()).toBe('next player: B');
   });
 
   test('should detect draw when board is full', async () => {

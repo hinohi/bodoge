@@ -1,5 +1,9 @@
 mod board;
+mod clock;
 mod mctree;
+mod search;
+
+use std::time::Duration;
 
 use rand::{rngs::SmallRng, SeedableRng};
 use serde::Serialize;
@@ -7,7 +11,8 @@ use serde_wasm_bindgen::{from_value, to_value};
 use wasm_bindgen::prelude::*;
 
 pub use crate::board::*;
-use crate::mctree::McTreeAI;
+pub use crate::mctree::McTreeAI;
+pub use crate::search::{search, SearchLimit, SearchResult};
 
 #[wasm_bindgen(js_name = calculateWinner)]
 pub fn js_calculate_winner(board: &JsValue) -> Result<JsValue, JsValue> {
@@ -50,6 +55,19 @@ fn gen_rng() -> SmallRng {
         rand::rng().random()
     };
     SmallRng::seed_from_u64(seed)
+}
+
+#[wasm_bindgen(js_name = searchMove)]
+pub fn js_search_move(board: &JsValue, limit_ms: u32) -> Result<JsValue, JsValue> {
+    let board: Board = from_value(board.clone())?;
+    let limit = SearchLimit::Time(Duration::from_millis(u64::from(limit_ms)));
+    let Some(result) = search(&BitBoard::from(board), limit) else {
+        return Ok(none_response());
+    };
+    Ok(to_value(&SearchResponse {
+        position: Some(result.column as u32),
+        score: result.score_label(),
+    })?)
 }
 
 #[wasm_bindgen(js_name = mctree)]

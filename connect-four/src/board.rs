@@ -48,6 +48,13 @@ impl BitBoard {
         Default::default()
     }
 
+    pub(crate) fn stones(&self, side: Side) -> u64 {
+        match side {
+            Side::A => self.a,
+            Side::B => self.b,
+        }
+    }
+
     pub fn calc_next(&self) -> Side {
         let b = self.a ^ self.b;
         if b.count_ones() % 2 == 0 {

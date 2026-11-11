@@ -96,15 +96,13 @@ interface HumanPlayer {
   readonly name: string;
 }
 
-interface McTreePlayer {
-  readonly type: 'MCTree';
+interface CpuPlayer {
+  readonly type: 'CPU';
   readonly name: string;
   readonly limit: number;
-  readonly expansion_threshold: number;
-  readonly c: number;
 }
 
-type Player = HumanPlayer | McTreePlayer;
+type Player = HumanPlayer | CpuPlayer;
 
 type Winner = Side | 'F' | null;
 
@@ -172,18 +170,14 @@ function ConnectFour(): React.ReactElement {
         name: 'Human',
       },
       {
-        type: 'MCTree',
-        name: 'MCTree (200ms)',
+        type: 'CPU',
+        name: 'CPU (200ms)',
         limit: 200,
-        expansion_threshold: 2,
-        c: 2.0,
       },
       {
-        type: 'MCTree',
-        name: 'MCTree (3s)',
-        limit: 3000,
-        expansion_threshold: 2,
-        c: 2.0,
+        type: 'CPU',
+        name: 'CPU (1s)',
+        limit: 1000,
       },
     ],
     [],
@@ -201,11 +195,11 @@ function ConnectFour(): React.ReactElement {
       switch (player.type) {
         case 'Human':
           break;
-        case 'MCTree': {
+        case 'CPU': {
           const key = state.key;
           setCalculating(true);
           wasm
-            .mctree({ cols: state.board.cols }, player.limit, player.expansion_threshold, player.c)
+            .searchMove({ cols: state.board.cols }, player.limit)
             .then((r: SearchResponse) => {
               if (typeof r.position === 'number') {
                 dispatch({ type: 'put', key, side, position: r.position, score: r.score });

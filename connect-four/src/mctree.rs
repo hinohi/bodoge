@@ -1,9 +1,8 @@
 use std::time::Duration;
-#[cfg(not(target_arch = "wasm32"))]
-use std::time::Instant;
 
 use rand::{seq::IndexedRandom, RngExt};
 
+use crate::clock::Instant;
 use crate::{BitBoard, Side};
 
 const WIN_POINT: f64 = 1.0;
@@ -149,30 +148,18 @@ impl<R: RngExt> McTreeAI<R> {
                 self.selection((total_count as f64).ln(), &mut node, side);
             }
         }
-        let best = node
-            .children
-            .iter()
-            .max_by(|x, y| {
-                use std::cmp::Ordering::*;
-                if x.result == Some(LOSE_POINT) {
-                    Greater
-                } else if y.result == Some(LOSE_POINT) {
-                    Less
-                } else {
-                    x.visited_count.cmp(&y.visited_count)
-                }
-            })
-            .expect("No children");
-
-        log(&format!("children={}", node.children.len()));
-        for child in node.children.iter() {
-            log(&format!(
-                "visited_count={} win_point={} r={:?}",
-                child.visited_count,
-                1.0 - child.win_point / child.visited_count as f64,
-                child.result,
-            ));
-        }
+        let Some(best) = node.children.iter().max_by(|x, y| {
+            use std::cmp::Ordering::*;
+            if x.result == Some(LOSE_POINT) {
+                Greater
+            } else if y.result == Some(LOSE_POINT) {
+                Less
+            } else {
+                x.visited_count.cmp(&y.visited_count)
+            }
+        }) else {
+            return (board.list_can_put()[0], DRAW_POINT);
+        };
 
         for col in 0..7 {
             if !board.can_put(col) {
@@ -188,31 +175,6 @@ impl<R: RngExt> McTreeAI<R> {
     }
 }
 
-#[cfg(target_arch = "wasm32")]
-fn log(s: &str) {
-    let value = wasm_bindgen::JsValue::from(s);
-    web_sys::console::log_1(&value);
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-fn log(s: &str) {
-    eprintln!("{}", s);
-}
-
-#[cfg(target_arch = "wasm32")]
-struct Instant(f64);
-
-#[cfg(target_arch = "wasm32")]
-impl Instant {
-    fn now() -> Instant {
-        Instant(js_sys::Date::now())
-    }
-
-    fn elapsed(&self) -> Duration {
-        Duration::from_secs_f64((js_sys::Date::now() - self.0) / 1000.0)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -224,7 +186,7 @@ mod tests {
         let mut ai = McTreeAI::new(rng, 10, 2, 2.0);
         let mut board = BitBoard::new();
         let mut side = Side::A;
-        while board.calc_winner().is_none() {
+        while board.calc_winner().is_none() && !board.is_full() {
             let (pos, f) = ai.search(&board);
             assert!(board.can_put(pos));
             assert!((0.0..=1.0).contains(&f));

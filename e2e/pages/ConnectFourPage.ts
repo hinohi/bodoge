@@ -95,11 +95,6 @@ export class ConnectFourPage extends BasePage {
     await this.player2Select.selectOption({ label: playerType });
   }
 
-  async waitForAIMove() {
-    // Wait for AI to make a move
-    await this.page.waitForTimeout(1000);
-  }
-
   async waitForWinnerCalculation() {
     // Wait for the game to calculate winner after a move
     await this.page.waitForTimeout(200);
