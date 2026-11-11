@@ -14,22 +14,28 @@ export const HomePage: React.FC = () => {
           </div>
 
           <div className="columns is-centered">
-            <div className="column is-one-third">
+            <div className="column is-one-quarter">
               <Link to="/tic-tac-toe" className="box has-background-primary has-text-white">
                 <h2 className="title is-4 has-text-white">Tic Tac Toe</h2>
                 <p>Classic 3x3 grid game with perfect AI</p>
               </Link>
             </div>
-            <div className="column is-one-third">
+            <div className="column is-one-quarter">
               <Link to="/connect-four" className="box has-background-info has-text-white">
                 <h2 className="title is-4 has-text-white">Connect Four</h2>
                 <p>Strategic game with Monte Carlo Tree Search AI</p>
               </Link>
             </div>
-            <div className="column is-one-third">
+            <div className="column is-one-quarter">
               <Link to="/mancala" className="box has-background-success has-text-white">
                 <h2 className="title is-4 has-text-white">Mancala</h2>
                 <p>Ancient strategy game with multiple AI difficulties</p>
+              </Link>
+            </div>
+            <div className="column is-one-quarter">
+              <Link to="/lucky-numbers" className="box has-background-link has-text-white">
+                <h2 className="title is-4 has-text-white">Lucky Numbers</h2>
+                <p>Fill your clover garden before your opponents</p>
               </Link>
             </div>
           </div>

@@ -12,6 +12,7 @@ const NAV_ITEMS: NavItem[] = [
   { path: '/tic-tac-toe', label: 'Tic Tac Toe' },
   { path: '/connect-four', label: 'Connect Four' },
   { path: '/mancala', label: 'Mancala' },
+  { path: '/lucky-numbers', label: 'Lucky Numbers' },
 ];
 
 export const Navigation: React.FC = () => {
