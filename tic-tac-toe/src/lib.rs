@@ -1,4 +1,4 @@
-use rand::{rngs::SmallRng, seq::SliceRandom, Rng, SeedableRng};
+use rand::{rngs::SmallRng, seq::IndexedRandom, RngExt, SeedableRng};
 use serde::{Deserialize, Serialize};
 use serde_wasm_bindgen::{from_value, to_value};
 use wasm_bindgen::prelude::*;
@@ -61,7 +61,7 @@ pub struct SearchResponse {
 pub fn search(board: &[CellType; 9], next: CellType) -> SearchResponse {
     debug_assert!(next != E);
 
-    fn dfs<R: Rng>(rng: &mut R, board: &mut [CellType; 9], next: CellType) -> SearchResponse {
+    fn dfs<R: RngExt>(rng: &mut R, board: &mut [CellType; 9], next: CellType) -> SearchResponse {
         let winner = calculate_winner(board);
         match winner {
             None => {
@@ -114,8 +114,8 @@ pub fn search(board: &[CellType; 9], next: CellType) -> SearchResponse {
     let seed = (js_sys::Math::random() * 2f64.powi(64)) as u64;
     #[cfg(not(target_arch = "wasm32"))]
     let seed = {
-        use rand::RngCore;
-        rand::thread_rng().next_u64()
+        use rand::RngExt;
+        rand::rng().random()
     };
     let mut rng = SmallRng::seed_from_u64(seed);
     dfs(&mut rng, &mut board.clone(), next)

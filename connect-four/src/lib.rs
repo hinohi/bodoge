@@ -46,8 +46,8 @@ fn gen_rng() -> SmallRng {
     let seed = (js_sys::Math::random() * 2f64.powi(64)) as u64;
     #[cfg(not(target_arch = "wasm32"))]
     let seed = {
-        use rand::RngCore;
-        rand::thread_rng().next_u64()
+        use rand::RngExt;
+        rand::rng().random()
     };
     SmallRng::seed_from_u64(seed)
 }

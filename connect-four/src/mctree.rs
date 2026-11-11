@@ -2,7 +2,7 @@ use std::time::Duration;
 #[cfg(not(target_arch = "wasm32"))]
 use std::time::Instant;
 
-use rand::{seq::SliceRandom, Rng};
+use rand::{seq::IndexedRandom, RngExt};
 
 use crate::{BitBoard, Side};
 
@@ -10,9 +10,9 @@ const WIN_POINT: f64 = 1.0;
 const LOSE_POINT: f64 = 0.0;
 const DRAW_POINT: f64 = 0.5;
 
-fn choice_with_weight<R: Rng>(rng: &mut R, weight: &[f64]) -> usize {
+fn choice_with_weight<R: RngExt>(rng: &mut R, weight: &[f64]) -> usize {
     let sum = weight.iter().fold(0.0, |x, y| x + *y);
-    let r = rng.gen_range(0.0..sum);
+    let r = rng.random_range(0.0..sum);
     let mut p = 0.0;
     for (i, w) in weight.iter().enumerate() {
         p += *w;
@@ -23,7 +23,7 @@ fn choice_with_weight<R: Rng>(rng: &mut R, weight: &[f64]) -> usize {
     weight.len() - 1
 }
 
-fn random_down<R: Rng>(rng: &mut R, board: &BitBoard, side: Side) -> f64 {
+fn random_down<R: RngExt>(rng: &mut R, board: &BitBoard, side: Side) -> f64 {
     let mut board = board.clone();
     let mut s = side;
     loop {
@@ -67,7 +67,7 @@ impl Node {
     }
 }
 
-impl<R: Rng> McTreeAI<R> {
+impl<R: RngExt> McTreeAI<R> {
     pub fn new(rng: R, limit: u64, expansion_threshold: u32, c: f64) -> McTreeAI<R> {
         McTreeAI {
             rng,

@@ -41,10 +41,6 @@ for entry in "${CRATES[@]}"; do
     CARGO_PACKAGES+=("-p" "${entry%%:*}")
 done
 
-# mancala's upstream deps pull in getrandom 0.3 which requires this cfg for
-# wasm32-unknown-unknown. Harmless for the other crates.
-export RUSTFLAGS="${RUSTFLAGS:-} --cfg getrandom_backend=\"wasm_js\""
-
 echo ">>> cargo build --target wasm32-unknown-unknown $CARGO_PROFILE_FLAG ${CARGO_PACKAGES[*]}"
 cargo build --target wasm32-unknown-unknown $CARGO_PROFILE_FLAG "${CARGO_PACKAGES[@]}"
 

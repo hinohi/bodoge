@@ -4,14 +4,15 @@ site: https://hinohi.github.io/bodoge/
 
 ## Prerequisites
 
-- Node.js (for the frontend)
+- [mise](https://mise.jdx.dev/) (to install the pinned Node.js runtime)
+- pnpm 12 (selected by the `packageManager` field)
 - Rust toolchain with the `wasm32-unknown-unknown` target:
   ```
   rustup target add wasm32-unknown-unknown
   ```
 - `wasm-bindgen-cli`:
   ```
-  cargo install wasm-bindgen-cli
+  cargo install wasm-bindgen-cli --version 0.2.130 --locked
   ```
 
 ## Build
@@ -19,31 +20,36 @@ site: https://hinohi.github.io/bodoge/
 ### Develop
 
 ```
-npm install
-npm run dev
+  mise install
+  pnpm install
+  pnpm dev
 ```
 
-`npm run dev` rebuilds the WASM packages (debug) via `scripts/build-wasm.sh` and
+`pnpm dev` rebuilds the WASM packages (debug) via `scripts/build-wasm.sh` and
 then starts Vite. To rebuild WASM only:
 
 ```
-npm run build:wasm        # release
-npm run build:wasm:dev    # debug
+pnpm build:wasm        # release
+pnpm build:wasm:dev    # debug
 ```
 
 ### Test
 
 ```
+pnpm playwright:install
 cargo test --all
-npm run test
+pnpm test
 ```
+
+`pnpm test` runs the Playwright end-to-end suite. Install its browser binaries
+once with `pnpm playwright:install` before running it.
 
 ### Release
 
 ```
-npm run build
-npm run deploy
+pnpm build
+pnpm deploy
 ```
 
-`npm run build` invokes `scripts/build-wasm.sh` (release) automatically before
+`pnpm build` invokes `scripts/build-wasm.sh` (release) automatically before
 running `tsc` and `vite build`.
